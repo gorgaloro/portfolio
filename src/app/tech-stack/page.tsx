@@ -70,12 +70,13 @@ async function getSkills(): Promise<Skill[]> {
 export default async function TechStackPage({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined }
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const skills = await getSkills()
   const allAreas = Array.from(new Set(skills.map((s) => s.area))).sort()
   const defaultArea = allAreas.includes('Security') ? 'Security' : allAreas[0]
-  const areaParam = typeof searchParams?.area === 'string' ? (searchParams!.area as string) : undefined
+  const params = await searchParams
+  const areaParam = typeof params?.area === 'string' ? (params.area as string) : undefined
   const area = allAreas.includes(areaParam || '') ? (areaParam as string) : defaultArea
 
   const appOrder = ['Epic EHR', 'SAP', 'SaaS']

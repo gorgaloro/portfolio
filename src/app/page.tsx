@@ -46,7 +46,7 @@ function IconCommunity(props: React.ComponentPropsWithoutRef<'svg'>) {
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined }
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
 }) {
   const techCopy: Record<string, string> = {
     'Platform': 'Foundational systems powering operations: Epic, SAP, SaaS, and cloud.',
@@ -57,7 +57,8 @@ export default async function Home({
     'Reporting': 'Turning raw data into insights with dashboards and analytics.',
   }
   const areas = ['Platform', 'Automation/AI', 'Integration', 'Security', 'Monitoring', 'Reporting'] as const
-  const areaParam = typeof searchParams?.tech === 'string' ? (searchParams!.tech as string) : undefined
+  const params = await searchParams
+  const areaParam = typeof params?.tech === 'string' ? (params.tech as string) : undefined
   const selected = areas.includes((areaParam as any) ?? '') ? (areaParam as (typeof areas)[number]) : 'Platform'
   return (
     <>
