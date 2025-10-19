@@ -1,0 +1,255 @@
+import { Container } from '@/components/Container'
+import IndustryBreadth from '@/components/IndustryBreadth'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { CheckCircleIcon } from '@heroicons/react/20/solid'
+import { Button } from '@/components/Button'
+import LogoExplorer from '@/components/LogoExplorer'
+
+export const metadata = {
+  title: 'Board Advisory',
+  description:
+    'I advise early-stage founders navigating product-market fit, operational scaling, and go-to-market execution. With a cross-industry background in tech, healthcare, and infrastructure — and a network spanning 2,000+ professionals across companies like Meta, Ford, and Kaiser — I help founders overcome blockers and accelerate at key inflection points.',
+}
+
+export default function BoardAdvisory() {
+  const ctaBenefits = [
+    'Advisory Calls – Book 1:1 coaching or strategy sessions by the hour',
+    'Pitch & Materials Review – One-off deep-dives into your pitch deck, GTM plan, or investor collateral',
+    'Sprint-Based Projects – Targeted deliverables over 2–6 week sprints',
+    'Ongoing Advisory – Monthly support with recurring strategy calls, reviews, and async feedback',
+    'Strategic Partnerships – Fractional leadership and hands-on execution for longer-term scaling',
+  ]
+  return (
+    <>
+      {/* Stats Hero */}
+      <Container className="pt-20 sm:pt-24 lg:pt-28 pb-8 sm:pb-10 lg:pb-12">
+        <div className="text-center">
+          <h2 className="text-4xl font-semibold tracking-tight text-pretty text-zinc-900 sm:text-5xl dark:text-zinc-100">
+            Moving the Mission Forward
+          </h2>
+          <p className="mt-4 text-lg/8 text-zinc-600 dark:text-zinc-400">
+            Extensive project delivery experience that translates strategy into results
+          </p>
+        </div>
+        <dl className="mt-10 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex flex-col bg-zinc-400/5 p-8 dark:bg-white/5">
+            <dt className="text-sm/6 font-semibold text-zinc-600 dark:text-zinc-400">Go-Lives</dt>
+            <dd className="order-first text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              80+
+            </dd>
+          </div>
+          <div className="flex flex-col bg-zinc-400/5 p-8 dark:bg-white/5">
+            <dt className="text-sm/6 font-semibold text-zinc-600 dark:text-zinc-400">End Users</dt>
+            <dd className="order-first text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              1M+
+            </dd>
+          </div>
+          <div className="flex flex-col bg-zinc-400/5 p-8 dark:bg-white/5">
+            <dt className="text-sm/6 font-semibold text-zinc-600 dark:text-zinc-400">Project Budgets</dt>
+            <dd className="order-first text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              $1.4B
+            </dd>
+          </div>
+          <div className="flex flex-col bg-zinc-400/5 p-8 dark:bg-white/5">
+            <dt className="text-sm/6 font-semibold text-zinc-600 dark:text-zinc-400">Workstreams Managed</dt>
+            <dd className="order-first text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              135+
+            </dd>
+          </div>
+        </dl>
+      </Container>
+
+
+      <Container className="py-12 sm:py-16 lg:py-20">
+        <h2 className="text-3xl font-semibold tracking-tight text-pretty text-zinc-900 sm:text-4xl dark:text-zinc-100">
+          How I Support Founders
+        </h2>
+        <p className="mt-4 text-pretty text-lg/8 max-w-3xl text-zinc-600 dark:text-zinc-400">
+          I support founders by drawing on 20+ years of experience across industries like healthcare, construction, pharma, and real estate development—spanning startups to Fortune 50 enterprises. From pitch feedback and GTM strategy to Agile delivery and operational execution, I help teams sharpen their story, launch with clarity, and scale with confidence through curated guidance and connections.
+        </p>
+      </Container>
+
+      <Container className="py-12 sm:py-16 lg:py-20">
+        <h3 className="text-2xl font-semibold tracking-tight text-pretty text-zinc-900 dark:text-zinc-100">
+          Focus Areas Supporting Your Launch
+        </h3>
+        <div className="mt-6">
+          <IndustryBreadth />
+        </div>
+      </Container>
+      <Container className="py-12 sm:py-16 lg:py-20">
+        <h3 className="text-2xl font-semibold tracking-tight text-pretty text-zinc-900 dark:text-zinc-100">
+          Connections that Make a Difference
+        </h3>
+        <p className="mt-2 text-pretty text-zinc-600 dark:text-zinc-400">
+          A sample of organizations and teams I’ve supported or collaborated with.
+        </p>
+        <div className="mt-6">
+          {/* Interactive logo explorer with tag filters and pagination */}
+          <LogoExplorer />
+        </div>
+      </Container>
+
+      <Container className="py-8 sm:py-12 lg:py-16">
+        <h2 className="text-2xl font-semibold tracking-tight text-pretty text-zinc-900 dark:text-zinc-100">Advisory Deliverables</h2>
+        <p className="mt-2 text-pretty max-w-xl text-zinc-600 dark:text-zinc-400">
+          Actionable support that moves the needle. I offer structured, high-impact sessions and feedback loops designed for early-stage and growth-stage founders building in complex environments.
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Pitch Review & Coaching</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                One-on-one sessions focused on refining pitch narrative, story flow, and investor-facing delivery. Includes deck markup and feedback.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>GTM Alignment Workshop</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Collaborative session to align your go-to-market plan across target segments, channel strategies, and internal capabilities.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Project Planning Intensive</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Two-hour working session to define a realistic execution plan. Output includes phased milestones, tooling suggestions, and ownership map.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Messaging & Positioning Audit</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                A fast pass through your website, deck, and collateral to evaluate clarity, differentiation, and resonance with target audiences.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>PM Tooling Setup & Coaching</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Get your Notion, Asana, or Airtable environments set up for scale. I help teams pick the right stack and build project visibility fast.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Warm Intros & BD Support</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Access a curated network of operators, execs, and decision-makers across healthcare, climate, and enterprise tech.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Demo Dry Run</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Practice your live demo in a low-stakes environment. Includes real-time coaching, timing review, and objection-handling prep.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Pilot Strategy Session</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Design your first customer pilot to maximize success and scalability. We'll define goals, KPIs, and implementation tactics.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Customer Persona Definition</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                Clarify your ideal customer profile. Together we’ll map pain points, roles, buying triggers, and messaging angles that convert.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </Container>
+
+      <Container className="py-12 sm:py-16 lg:py-20">
+        <div className="relative isolate">
+          <div className="mx-auto max-w-7xl">
+            <div className="mx-auto flex max-w-2xl flex-col gap-16 bg-white/75 px-6 py-16 shadow-lg ring-1 ring-zinc-900/10 sm:rounded-3xl sm:p-8 lg:mx-0 lg:max-w-none xl:px-20 dark:bg-zinc-900/40 dark:ring-white/10">
+              <div className="w-full">
+                <h2 className="text-4xl font-semibold tracking-tight text-pretty text-zinc-950 sm:text-5xl dark:text-zinc-50">
+                  Let's Build Something
+                </h2>
+                <p className="mt-6 text-pretty text-lg/8 text-zinc-600 dark:text-zinc-400">
+                  From one-time sessions to ongoing partnerships, I offer flexible engagement options designed to meet your stage, budget, and needs.
+                </p>
+                <ul
+                  role="list"
+                  className="mt-10 grid grid-cols-1 gap-y-3 text-base/7 text-zinc-950 dark:text-zinc-100"
+                >
+                  {ctaBenefits.map((benefit) => {
+                    const parts = benefit.split(' – ')
+                    const title = parts[0]
+                    const rest = parts.slice(1).join(' – ')
+                    return (
+                      <li key={benefit} className="flex gap-x-3">
+                        <CheckCircleIcon aria-hidden="true" className="h-7 w-5 flex-none text-indigo-500 dark:text-indigo-400" />
+                        <span>
+                          <span className="font-semibold">{title}</span>
+                          {rest ? <> – {rest}</> : null}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+                <div className="mt-10 flex">
+                  <Button href="https://calendly.com/allen-bayconnectors">
+                    Book an intro call
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 -top-16 -z-10 flex transform-gpu justify-center overflow-hidden blur-3xl"
+          >
+            <div
+              style={{
+                clipPath:
+                  'polygon(73.6% 51.7%, 91.7% 11.8%, 100% 46.4%, 97.4% 82.2%, 92.5% 84.9%, 75.7% 64%, 55.3% 47.5%, 46.5% 49.4%, 45% 62.9%, 50.3% 87.2%, 21.3% 64.1%, 0.1% 100%, 5.4% 51.1%, 21.4% 63.9%, 58.9% 0.2%, 73.6% 51.7%)',
+              }}
+              className="aspect-[1318/752] w-[329.5px] flex-none bg-gradient-to-r from-[#9fd6fc] to-[#8680fd] opacity-50"
+            />
+          </div>
+        </div>
+      </Container>
+
+    </>
+  )
+}

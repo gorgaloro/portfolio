@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="500" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="500" rx="20" fill="#F8FAFC"/>
+  <g transform="translate(60,60)" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+    <rect x="0" y="0" width="680" height="360" rx="14" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <g>
+      <rect x="80" y="140" width="60" height="160" rx="6" fill="#A5B4FC"/>
+      <rect x="180" y="100" width="60" height="200" rx="6" fill="#818CF8"/>
+      <rect x="280" y="70" width="60" height="230" rx="6" fill="#6366F1"/>
+      <rect x="380" y="110" width="60" height="190" rx="6" fill="#4F46E5"/>
+      <rect x="480" y="90" width="60" height="210" rx="6" fill="#4338CA"/>
+    </g>
+    <text x="40" y="330" fill="#64748B" font-size="12">0%</text>
+    <text x="40" y="60" fill="#64748B" font-size="12">100%</text>
+  </g>
+  <text x="400" y="36" text-anchor="middle" fill="#1F2937" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="22" font-weight="600">Customer Success Metrics</text>
+</svg>

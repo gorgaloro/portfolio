@@ -1,0 +1,232 @@
+import type { Metadata } from 'next'
+import Link from 'next/link'
+import clsx from 'clsx'
+import path from 'node:path'
+import fs from 'node:fs/promises'
+import { Container } from '@/components/Container'
+
+export const metadata: Metadata = {
+  title: 'Technology',
+  description:
+    'A concise look at the technologies, frameworks, and tools I use to build products.',
+}
+
+// Ensure Node.js runtime for fs access and dynamic rendering for ?area=
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
+type Skill = {
+  skill: string
+  description: string
+  area: string
+  application: string
+  rank: number
+}
+
+function parseCSV(text: string): Skill[] {
+  const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0)
+  if (lines.length <= 1) return []
+  const rows: Skill[] = []
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i]
+    const fields: string[] = []
+    let current = ''
+    let inQuotes = false
+    for (let j = 0; j < line.length; j++) {
+      const ch = line[j]
+      if (ch === '"') {
+        if (inQuotes && line[j + 1] === '"') {
+          current += '"'
+          j++
+        } else {
+          inQuotes = !inQuotes
+        }
+      } else if (ch === ',' && !inQuotes) {
+        fields.push(current)
+        current = ''
+      } else {
+        current += ch
+      }
+    }
+    fields.push(current)
+    if (fields.length < 5) continue
+    const [skill, description, area, application, rankStr] = fields.map((s) => s.trim())
+    const rank = Number(rankStr)
+    rows.push({ skill, description, area, application, rank: Number.isFinite(rank) ? rank : 999 })
+  }
+  return rows
+}
+
+async function getSkills(): Promise<Skill[]> {
+  try {
+    const filePath = path.join(process.cwd(), 'tech_stack.csv')
+    const text = await fs.readFile(filePath, 'utf8')
+    return parseCSV(text)
+  } catch {
+    return []
+  }
+}
+
+export default async function TechStackPage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined }
+}) {
+  const skills = await getSkills()
+  const allAreas = Array.from(new Set(skills.map((s) => s.area))).sort()
+  const defaultArea = allAreas.includes('Security') ? 'Security' : allAreas[0]
+  const areaParam = typeof searchParams?.area === 'string' ? (searchParams!.area as string) : undefined
+  const area = allAreas.includes(areaParam || '') ? (areaParam as string) : defaultArea
+
+  const appOrder = ['Epic EHR', 'SAP', 'SaaS']
+  const appsInArea = Array.from(new Set(skills.filter((s) => s.area === area).map((s) => s.application)))
+  const apps = [...appsInArea].sort((a, b) => {
+    const ia = appOrder.indexOf(a)
+    const ib = appOrder.indexOf(b)
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib)
+  })
+
+  // Desired left-to-right order for tabs
+  const desiredAreaOrder = ['Platform', 'Automation/AI', 'Integration', 'Security', 'Monitoring', 'Reporting']
+  const areaTabs: string[] = [...allAreas].sort((a, b) => {
+    const ia = desiredAreaOrder.indexOf(a)
+    const ib = desiredAreaOrder.indexOf(b)
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib)
+  })
+
+  // Optional subheadings beneath each application title
+  const appSubhead: Record<string, string> = {
+    'Epic EHR': 'Kaiser, Northwestern, UC Davis',
+    'SAP': 'Amgen',
+    'SaaS': 'Ford, Projects',
+  }
+
+  const byApp = (app: string) =>
+    skills
+      .filter((s) => s.area === area && s.application === app)
+      .sort((a, b) => a.rank - b.rank)
+
+  const stats = [
+    { id: 1, name: 'Apps Managed', value: '41+' },
+    { id: 2, name: 'Engineers Directed', value: '400+' },
+    { id: 3, name: 'Transaction Revenue', value: '$200B+' },
+    { id: 4, name: 'Environments Supported', value: '50+' },
+  ]
+
+  return (
+    <>
+      {/* Stats: Trusted by creators */}
+      <Container className="pt-20 sm:pt-24 lg:pt-28 pb-8 sm:pb-10 lg:pb-12">
+        <div className="text-center">
+          <h2 className="text-4xl font-semibold tracking-tight text-pretty text-zinc-900 sm:text-5xl dark:text-zinc-100">
+            Delivering Technology at Scale
+          </h2>
+          <p className="mt-4 text-lg/8 text-zinc-600 dark:text-zinc-400">
+            Extensive project delivery experience that translates strategy into results
+          </p>
+        </div>
+        <dl className="mt-10 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-4">
+          {stats.map((stat) => (
+            <div key={stat.id} className="flex flex-col bg-zinc-400/5 p-8 dark:bg-white/5">
+              <dt className="text-sm/6 font-semibold text-zinc-600 dark:text-zinc-400">{stat.name}</dt>
+              <dd className="order-first text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+                {stat.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </Container>
+
+      {/* Technology in Action */}
+      <Container className="pt-8 sm:pt-10 lg:pt-12 pb-8 sm:pb-10 lg:pb-12">
+        <div className="mx-auto max-w-5xl">
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            Technology in Action
+          </h2>
+          <div className="mt-4 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_230px]">
+            <div className="space-y-4">
+              <p className="text-base text-zinc-600 dark:text-zinc-400">
+                Managing technology and delivering reliable, scalable systems requires both structured frameworks and forward-looking design. For me, this begins with defining clear objectives, translating them into well-architected solutions, and ensuring applications align with business requirements and workflows.
+              </p>
+              <p className="text-base text-zinc-600 dark:text-zinc-400">
+                Equally important—but often overlooked—are support and sustainability. Too often, systems satisfy initial project goals but falter once exposed to real production data, edge cases, or complex integrations where data is passed, transformed, and modified across environments. These realities introduce unintended behaviors that demand foresight and resilience in system design.
+              </p>
+              <p className="text-base text-zinc-600 dark:text-zinc-400">
+                I bring a rare perspective shaped by experience on both sides of delivery. I've led large workgroups driving enterprise change, but I've also been the engineer troubleshooting unstable applications and designing workarounds under pressure. This dual vantage point allows me to anticipate challenges, design for durability, and guide teams to implement solutions that truly perform at scale.
+              </p>
+            </div>
+            <div>
+              <img
+                src="/images/itil_service.png"
+                alt="ITIL Service"
+                className="w-full h-auto"
+              />
+            </div>
+          </div>
+        </div>
+      </Container>
+
+      {/* Tabs + 3-column grid from CSV */}
+      <Container className="py-8 sm:py-10 lg:py-12">
+        <div className="not-prose">
+          {/* Section heading */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Technology Stack</h2>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 max-w-3xl">
+              Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+            </p>
+          </div>
+          {/* Area tabs */}
+          <div className="mb-6">
+            <div className="flex w-full items-center rounded-full bg-white/90 px-1 py-0 text-sm font-medium text-zinc-800 shadow-lg ring-1 shadow-zinc-800/5 ring-zinc-900/5 backdrop-blur-sm dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10">
+              <ul className="flex w-full items-center h-10 rounded-full bg-black text-white px-2 py-1 overflow-hidden">
+                {areaTabs.map((a) => (
+                  <li key={a} className="flex-1">
+                    <Link
+                      scroll={false}
+                      href={`/tech-stack?area=${encodeURIComponent(a)}`}
+                      className={clsx(
+                        'relative flex w-full items-center justify-center whitespace-nowrap rounded-full px-5 py-1.5 leading-none transition',
+                        a === area ? 'bg-zinc-600/70 text-white' : 'text-white/80 hover:text-white',
+                      )}
+                    >
+                      {a}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          {/* 3-column grid grouped by application */}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {apps.map((app) => {
+              const list = byApp(app)
+              if (list.length === 0) return null
+              return (
+                <section
+                  key={app}
+                  className="rounded-2xl bg-zinc-50 p-4 ring-1 ring-zinc-900/10 dark:bg-zinc-900/40 dark:ring-white/10"
+                >
+                  <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{app}</h3>
+                  {appSubhead[app] && (
+                    <p className="mt-1 text-xs italic text-zinc-500 dark:text-zinc-400">{appSubhead[app]}</p>
+                  )}
+                  <ul className="mt-4 space-y-3">
+                    {list.map((item) => (
+                      <li key={`${app}-${item.rank}-${item.skill}`}>
+                        <div className="w-full rounded-xl bg-white px-3 py-1.5 text-xs leading-tight text-zinc-800 ring-1 ring-zinc-900/10 transition hover:bg-zinc-50 dark:bg-white/5 dark:text-zinc-100 dark:ring-white/10 dark:hover:bg-white/10">
+                          {item.skill}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              )
+            })}
+          </div>
+        </div>
+      </Container>
+    </>
+  )
+}

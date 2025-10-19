@@ -1,0 +1,231 @@
+import { Container } from '@/components/Container'
+
+export const metadata = {
+  title: 'Growth',
+  description:
+    "Managed post-sale delivery and customer success for Ford’s EV infrastructure clients. Bridged product, operations, and customer teams to ensure scalable rollout and consistently high satisfaction.",
+}
+
+export default function BusinessDevelopmentPage() {
+  return (
+    <>
+      {/* Stats Hero */}
+      <Container className="pt-20 sm:pt-24 lg:pt-28 pb-8 sm:pb-10 lg:pb-12">
+        <div className="text-center">
+          <h2 className="text-4xl font-semibold tracking-tight text-pretty text-zinc-900 sm:text-5xl dark:text-zinc-100">
+            Moving the Mission Forward
+          </h2>
+          <p className="mt-4 text-lg/8 text-zinc-600 dark:text-zinc-400">
+            Extensive project delivery experience that translates strategy into results
+          </p>
+        </div>
+        <dl className="mt-10 grid grid-cols-1 gap-0.5 overflow-hidden rounded-2xl text-center sm:grid-cols-2 lg:grid-cols-4">
+          <div className="flex flex-col bg-zinc-400/5 p-8 dark:bg-white/5">
+            <dt className="text-sm/6 font-semibold text-zinc-600 dark:text-zinc-400">Go-Lives</dt>
+            <dd className="order-first text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              80+
+            </dd>
+          </div>
+          <div className="flex flex-col bg-zinc-400/5 p-8 dark:bg-white/5">
+            <dt className="text-sm/6 font-semibold text-zinc-600 dark:text-zinc-400">End Users</dt>
+            <dd className="order-first text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              1M+
+            </dd>
+          </div>
+          <div className="flex flex-col bg-zinc-400/5 p-8 dark:bg-white/5">
+            <dt className="text-sm/6 font-semibold text-zinc-600 dark:text-zinc-400">Project Budgets</dt>
+            <dd className="order-first text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              $1.4B
+            </dd>
+          </div>
+          <div className="flex flex-col bg-zinc-400/5 p-8 dark:bg-white/5">
+            <dt className="text-sm/6 font-semibold text-zinc-600 dark:text-zinc-400">Workstreams Managed</dt>
+            <dd className="order-first text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              135+
+            </dd>
+          </div>
+        </dl>
+      </Container>
+
+      {false && (
+        <Container className="py-10 sm:py-12 lg:py-16">
+          <div className="grid items-center gap-x-8 gap-y-12 lg:grid-cols-12">
+            <div className="lg:col-span-8 pt-4">
+              <h1 className="text-5xl font-semibold tracking-tight text-pretty text-zinc-900 sm:text-7xl dark:text-zinc-100">
+                Growth
+              </h1>
+              <p className="mt-8 text-lg font-medium text-pretty text-zinc-600 sm:text-xl/8 dark:text-zinc-400">
+                Managed post-sale delivery and customer success for Ford’s EV infrastructure clients. Bridged product, operations, and customer teams to ensure scalable rollout and consistently high satisfaction.
+              </p>
+            </div>
+            <div className="hidden lg:col-span-4 lg:block">
+              <div className="relative overflow-hidden rounded-2xl bg-zinc-50 ring-1 ring-zinc-900/10 dark:bg-zinc-800 dark:ring-white/10 h-[500px]">
+                <img
+                  alt="App screenshot"
+                  src="https://tailwindcss.com/plus-assets/img/component-images/project-app-screenshot.png"
+                  className="h-full w-full object-cover object-left"
+                />
+              </div>
+            </div>
+          </div>
+        </Container>
+      )}
+      {/* Bento section under hero */}
+      <Container className="py-24 sm:py-32">
+        <div className="rounded-2xl bg-gray-50 p-6 sm:p-10 ring-1 ring-zinc-200 dark:bg-white/5 dark:ring-white/10">
+          <h2 className="hidden">Deploy faster</h2>
+          <p className="mt-2 text-4xl font-semibold tracking-tight text-pretty text-gray-900 sm:text-5xl">
+            Building the Revenue Engine
+          </p>
+          <p className="mt-4 text-lg text-gray-600">
+            Growth begins with clear fundamentals: acquiring customers, proving value, monetizing effectively, and ensuring customer satisfaction. The challenge lies in scaling these fundamentals across each stage of a company’s journey. When GTM strategy, RevOps, business development, sales engineering, and customer success are aligned, organizations achieve consistent and durable impact.
+          </p>
+          <p className="mt-2 text-lg text-gray-600">
+            My experience leading startups and cross-functional teams enables the bridge between vision and execution, defining growth priorities and delivering the technical solutions that sustain them.
+          </p>
+          <div className="mt-10 grid grid-cols-1 gap-4 sm:mt-16 lg:grid-cols-6 lg:grid-rows-2">
+            <div className="flex p-px lg:col-span-4">
+              <div className="w-full overflow-hidden rounded-lg bg-white shadow-sm outline outline-black/5 max-lg:rounded-t-4xl lg:rounded-tl-4xl">
+                <div className="p-10 flex h-full flex-col min-h-[360px]">
+                  <h3 className="text-sm/4 font-semibold text-gray-500">GTM Planning & Strategy</h3>
+                  <p className="mt-2 text-lg font-medium tracking-tight text-gray-900">Where Vision Meets Market.</p>
+                  <div className="mt-2 grid grid-cols-1 gap-6 lg:grid-cols-5 items-start">
+                    <div className="lg:col-span-3">
+                      <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
+                        GTM strategy starts with defining markets, segmenting ICPs, and mapping TAM, SAM, and SOM to focus resources effectively. I’ve built frameworks for positioning, competitive differentiation, and pricing models that balance value with scalable revenue.
+                      </p>
+                      <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
+                        I design launch plans that align sales, marketing, and product workflows, while structuring channels and partnerships to optimize reach. With KPIs tied to CAC, LTV, and pipeline velocity, GTM planning moves from vision to repeatable execution.
+                      </p>
+                    </div>
+                    <div className="lg:col-span-2 self-start">
+                      {/* Figma graphic test block */}
+                      <div className="relative h-[300px] overflow-hidden rounded-md">
+                        <div
+                          className="absolute inset-0 text-zinc-900 dark:text-zinc-100"
+                          dangerouslySetInnerHTML={{
+                            __html: `<!-- Group 2: rectangles (background) -->
+<div style="height:270px;flex-shrink:0;position:absolute;z-index:10;left:40px;right:10px;top:0px"><div style="width:100%;height:30px;flex-shrink:0;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0px;top:0px"></div><div style="width:100%;height:30px;flex-shrink:0;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0px;top:40px"></div><div style="width:100%;height:30px;flex-shrink:0;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0px;top:80px"></div><div style="width:100%;height:30px;flex-shrink:0;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0px;top:120px"></div><div style="width:100%;height:30px;flex-shrink:0;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0px;top:160px"></div><div style="width:100%;height:30px;flex-shrink:0;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0px;top:200px"></div><div style="width:100%;height:30px;flex-shrink:0;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0px;top:240px"></div></div>
+<!-- Group 1: spine and black dots (background) -->
+<div style="width:35px;height:260px;flex-shrink:0;position:absolute;z-index:10;left:15px;top:5px"><div style="width:10px;height:250px;flex-shrink:0;border-radius:5px;background:#000;position:absolute;left:0px;top:5px"></div><div style="width:20px;height:10px;flex-shrink:0;background:#000;position:absolute;left:5px;top:5px"></div><div style="width:20px;height:10px;flex-shrink:0;background:#000;position:absolute;left:5px;top:45px"></div><div style="width:20px;height:10px;flex-shrink:0;background:#000;position:absolute;left:5px;top:85px"></div><div style="width:20px;height:10px;flex-shrink:0;background:#000;position:absolute;left:5px;top:125px"></div><div style="width:20px;height:10px;flex-shrink:0;background:#000;position:absolute;left:5px;top:165px"></div><div style="width:20px;height:10px;flex-shrink:0;background:#000;position:absolute;left:5px;top:205px"></div><div style="width:20px;height:10px;flex-shrink:0;background:#000;position:absolute;left:5px;top:245px"></div><svg style="width:20px;height:20px;flex-shrink:0;fill:#000;position:absolute;left:15px;top:0px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg><svg style="width:20px;height:20px;flex-shrink:0;fill:#000;position:absolute;left:15px;top:40px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg><svg style="width:20px;height:20px;flex-shrink:0;fill:#000;position:absolute;left:15px;top:80px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg><svg style="width:20px;height:20px;flex-shrink:0;fill:#000;position:absolute;left:15px;top:120px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg><svg style="width:20px;height:20px;flex-shrink:0;fill:#000;position:absolute;left:15px;top:160px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg><svg style="width:20px;height:20px;flex-shrink:0;fill:#000;position:absolute;left:15px;top:200px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg><svg style="width:20px;height:20px;flex-shrink:0;fill:#000;position:absolute;left:15px;top:240px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg></div>
+<!-- Text labels (on top of rectangles) -->
+<div layer-name="Market Definition" style="z-index:20;display:flex;align-items:center;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:60px;right:10px;top:0px;height:30px"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Market Definition</span></div>
+<div layer-name="Positioning" style="z-index:20;display:flex;align-items:center;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:60px;right:10px;top:40px;height:30px"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Positioning</span></div>
+<div layer-name="Pricing" style="z-index:20;display:flex;align-items:center;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:60px;right:10px;top:80px;height:30px"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Pricing</span></div>
+<div layer-name="Distribution" style="z-index:20;display:flex;align-items:center;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:60px;right:10px;top:120px;height:30px"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Distribution</span></div>
+<div layer-name="Marketing" style="z-index:20;display:flex;align-items:center;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:60px;right:10px;top:160px;height:30px"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Marketing</span></div>
+<div layer-name="Launch Planning" style="z-index:20;display:flex;align-items:center;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:60px;right:10px;top:200px;height:30px"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Launch Planning</span></div>
+<div layer-name="Analytics" style="z-index:20;display:flex;align-items:center;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:60px;right:10px;top:240px;height:30px"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Analytics</span></div>
+<!-- White circle overlays (topmost) -->
+<svg style="z-index:30;width:14px;height:14px;flex-shrink:0;fill:#FFF;position:absolute;left:33px;top:8px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;flex-shrink:0;fill:#FFF;position:absolute;left:33px;top:48px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;flex-shrink:0;fill:#FFF;position:absolute;left:33px;top:88px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;flex-shrink:0;fill:#FFF;position:absolute;left:33px;top:128px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;flex-shrink:0;fill:#FFF;position:absolute;left:33px;top:168px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;flex-shrink:0;fill:#FFF;position:absolute;left:33px;top:208px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;flex-shrink:0;fill:#FFF;position:absolute;left:33px;top:248px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex p-px lg:col-span-2">
+              <div className="w-full overflow-hidden rounded-lg bg-slate-100 shadow-sm outline outline-black/5 lg:rounded-tr-4xl">
+                <div className="p-10">
+                  <h3 className="text-sm/4 font-semibold text-gray-500 lg:text-right">GTM Engineering</h3>
+                  <p className="mt-2 text-lg font-medium tracking-tight text-gray-900 lg:text-right">Turning Data Into Leverage.</p>
+                  <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
+                    I design AI-driven workflows that source leads, enrich data, and streamline outreach across Salesforce, HubSpot, Slack, and Clay. By building pipelines that auto-enrich and qualify opportunities through lead scoring, intent detection, and data normalization, I create GTM systems that sharpen targeting and accelerate sales motions.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex p-px lg:col-span-2">
+              <div className="w-full overflow-hidden rounded-lg bg-indigo-50 shadow-sm outline outline-black/5 lg:rounded-bl-4xl">
+                <div className="p-10">
+                  <h3 className="text-sm/4 font-semibold text-gray-500">Sales Engineering</h3>
+                  <p className="mt-2 text-lg font-medium tracking-tight text-gray-900">Demos Into Deals.</p>
+                  <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
+                    Connecting technical systems with customer needs by translating requirements into solutions. With deep experience in enterprise applications and AI workflows, I deliver platforms that integrate data, streamline processes, and link product capabilities to business value for lasting adoption.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="flex p-px lg:col-span-4">
+              <div className="w-full overflow-hidden rounded-lg bg-white shadow-sm outline outline-black/5 max-lg:rounded-b-4xl lg:rounded-br-4xl">
+                <div className="p-10">
+                  <h3 className="text-sm/4 font-semibold text-gray-500 lg:text-right">Customer Success</h3>
+                  <p className="mt-2 text-lg font-medium tracking-tight text-gray-900 lg:text-right">Retention Is Growth.</p>
+                  <div className="mt-2 grid grid-cols-1 gap-6 lg:grid-cols-5 items-start">
+                    <div className="lg:col-span-2 self-start">
+                      <div className="relative h-[250px] overflow-hidden rounded-md">
+                        <div
+                          className="absolute inset-0 text-zinc-900 dark:text-zinc-100"
+                          dangerouslySetInnerHTML={{
+                            __html: `<!-- Mirrored layout to match GTM chart margins (left:40,right:10) -> (left:10,right:40) -->
+<!-- Bars container (mirrored, fluid width) -->
+<div style="height:230px;flex-shrink:0;position:absolute;z-index:10;left:10px;right:40px;top:10px">
+  <div style="width:100%;height:30px;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0;top:0"></div>
+  <div style="width:100%;height:30px;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0;top:40px"></div>
+  <div style="width:100%;height:30px;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0;top:80px"></div>
+  <div style="width:100%;height:30px;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0;top:120px"></div>
+  <div style="width:100%;height:30px;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0;top:160px"></div>
+  <div style="width:100%;height:30px;border-radius:5px;border:1px solid #6F6F6F;background:#FFF;position:absolute;left:0;top:200px"></div>
+</div>
+<!-- Spine and black dots on the right (mirrored) -->
+<div style="width:35px;height:220px;flex-shrink:0;position:absolute;z-index:10;right:15px;top:15px">
+  <div style="width:10px;height:210px;border-radius:5px;background:#000;position:absolute;right:0;top:5px"></div>
+  <div style="width:20px;height:10px;background:#000;position:absolute;right:5px;top:5px"></div>
+  <div style="width:20px;height:10px;background:#000;position:absolute;right:5px;top:45px"></div>
+  <div style="width:20px;height:10px;background:#000;position:absolute;right:5px;top:85px"></div>
+  <div style="width:20px;height:10px;background:#000;position:absolute;right:5px;top:125px"></div>
+  <div style="width:20px;height:10px;background:#000;position:absolute;right:5px;top:165px"></div>
+  <div style="width:20px;height:10px;background:#000;position:absolute;right:5px;top:205px"></div>
+  <svg style="width:20px;height:20px;position:absolute;right:15px;top:0" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg>
+  <svg style="width:20px;height:20px;position:absolute;right:15px;top:40px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg>
+  <svg style="width:20px;height:20px;position:absolute;right:15px;top:80px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg>
+  <svg style="width:20px;height:20px;position:absolute;right:15px;top:120px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg>
+  <svg style="width:20px;height:20px;position:absolute;right:15px;top:160px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg>
+  <svg style="width:20px;height:20px;position:absolute;right:15px;top:200px" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="10" fill="black"/></svg>
+</div>
+<!-- Row labels (right-aligned, mirrored) -->
+<div layer-name="Onboarding" style="z-index:20;display:flex;align-items:center;justify-content:flex-end;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:10px;right:60px;top:10px;height:30px;text-align:right"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Onboarding</span></div>
+<div layer-name="Adoption" style="z-index:20;display:flex;align-items:center;justify-content:flex-end;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:10px;right:60px;top:50px;height:30px;text-align:right"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Adoption</span></div>
+<div layer-name="Realization" style="z-index:20;display:flex;align-items:center;justify-content:flex-end;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:10px;right:60px;top:90px;height:30px;text-align:right"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Realization</span></div>
+<div layer-name="Expansion" style="z-index:20;display:flex;align-items:center;justify-content:flex-end;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:10px;right:60px;top:130px;height:30px;text-align:right"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Expansion</span></div>
+<div layer-name="Renewal" style="z-index:20;display:flex;align-items:center;justify-content:flex-end;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:10px;right:60px;top:170px;height:30px;text-align:right"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Renewal</span></div>
+<div layer-name="Advocacy" style="z-index:20;display:flex;align-items:center;justify-content:flex-end;color:inherit;font-family:inherit;font-size:14px;line-height:24px;font-style:normal;font-weight:500;position:absolute;left:10px;right:60px;top:210px;height:30px;text-align:right"><span style="font-family:inherit;font-weight:inherit;font-size:inherit;color:inherit">Advocacy</span></div>
+<!-- White circle overlays (topmost, mirrored) -->
+<svg style="z-index:30;width:14px;height:14px;position:absolute;right:33px;top:18px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;position:absolute;right:33px;top:58px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;position:absolute;right:33px;top:98px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;position:absolute;right:33px;top:138px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;position:absolute;right:33px;top:178px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+<svg style="z-index:30;width:14px;height:14px;position:absolute;right:33px;top:218px" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="7" r="7" fill="white"/></svg>
+`
+                          }}
+                        />
+                      </div>
+                    </div>
+                    <div className="lg:col-span-3">
+                      <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
+                        Durable revenue is critical to maintaining revenue growth. With experience defining and operationalizing success metrics for Fortune 100 enterprises, I’ve designed programs around GRR, NRR, and CLTV to ensure customers realize measurable outcomes.
+                      </p>
+                      <p className="mt-2 max-w-lg text-sm/6 text-gray-600">
+                        I’ve defined structured onboarding frameworks to health scoring models, QBR cadences, and renewal playbooks. A key focus has been aligning Customer Success with product, sales, and RevOps to maximize retention and expansion.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </>
+  )
+}

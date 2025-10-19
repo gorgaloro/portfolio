@@ -1,0 +1,181 @@
+skill,description,area,application,rank
+Access Provisioning/Deprovisioning,Managing onboarding/offboarding workflows for Epic users,Security,Epic EHR,1
+User Roles,"Designing and maintaining role-based access groups in Epic (Physician, Nurse, Admin)",Security,Epic EHR,2
+Audit Logs,Tracking and reviewing all clinical/user actions inside Epic for compliance and investigations,Security,Epic EHR,3
+Break-The-Glass Protocols,Implementing and monitoring controlled access for sensitive patient records,Security,Epic EHR,4
+HIPAA Compliance,Ensuring Epic configurations meet HIPAA privacy and security standards,Security,Epic EHR,5
+Two-Factor Authentication (2FA),Enforcing additional login security for Epic users,Security,Epic EHR,6
+Single Sign-On (SSO),Integrating Epic with enterprise SSO solutions for streamlined access,Security,Epic EHR,7
+MFA (Multi-Factor Authentication),Applying advanced login policies tied to device or location,Security,Epic EHR,8
+Patient Portal Security (MyChart),Safeguarding patient-facing portals and ensuring secure patient access,Security,Epic EHR,9
+Data Encryption in Transit,Securing Epic communications with external systems,Security,Epic EHR,10
+Role-Based Access Control (RBAC),Designing and managing SAP user roles and authorizations,Security,SAP,1
+Segregation of Duties (SoD) Analysis,Ensuring users do not have conflicting access rights that pose risk,Security,SAP,2
+Access Provisioning/Deprovisioning,Onboarding and offboarding user access in SAP,Security,SAP,3
+Audit Logs & Security Monitoring,Tracking and reviewing SAP user activities for compliance,Security,SAP,4
+GRC Access Control,"Using SAP Governance, Risk, and Cmopliance",Security,SAP,5
+Sensitive Transactions Management,Restricting and monitoring access to high-risk SAP transactions,Security,SAP,6
+Password Policies & Authentication,Enforcing strong password standards and authentication in SAP,Security,SAP,7
+System & Client Administration Security,Managing system parameters and client security settings,Security,SAP,8
+"Compliance Frameworks (SOX, GDPR)",Configuring SAP to meet external audit and regulatory requirements,Security,SAP,9
+Data Encryption,Protecting SAP data in transit and at rest,Security,SAP,10
+Identity and Access Management (IAM),Managing user accounts and permissions across SaaS applications,Security,SaaS,1
+Single Sign-On (SSO),Implementing and managing SSO integrations with SaaS tools,Security,SaaS,2
+Multi-Factor Authentication (MFA),Enforcing MFA policies across SaaS platforms,Security,SaaS,3
+Role-Based Access Control (RBAC),Defining roles and controlling access within SaaS applications,Security,SaaS,4
+Audit Logs & Activity Monitoring,Reviewing SaaS audit trails for suspicious or non-compliant activity,Security,SaaS,5
+Vendor Security Reviews,Assessing SaaS vendors for compliance and risk posture,Security,SaaS,6
+"Compliance Frameworks (SOC2, GDPR)",Ensuring SaaS usage aligns with external compliance requirements,Security,SaaS,7
+Data Encryption (At Rest & In Transit),Verifying encryption standards across SaaS platforms,Security,SaaS,8
+Incident Response Coordination,Managing SaaS-related security incidents and escalation paths,Security,SaaS,9
+API Security,Securing API connections between SaaS applications,Security,SaaS,10
+HL7 Interface Development,Building and maintaining HL7 interfaces for Epic interoperability,Integration,Epic EHR,1
+Interface Engine (Cloverleaf),Managing interface traffic through Cloverleaf or similar tools,Integration,Epic EHR,2
+FHIR Standards,Implementing and supporting FHIR APIs for modern interoperability,Integration,Epic EHR,3
+Epic Bridges,Using Epic’s native interface tools for system integrations,Integration,Epic EHR,4
+ADT Interfaces,Configuring Admission/Discharge/Transfer data feeds,Integration,Epic EHR,5
+Lab & Radiology Interfaces,Managing Epic _ lab and imaging system integrations,Integration,Epic EHR,6
+Pharmacy Interfaces,Configuring Epic medication data with external pharmacy systems,Integration,Epic EHR,7
+CCD/CCDA Exchange,Supporting Continuity of Care Document transfers,Integration,Epic EHR,8
+API/Web Services Integration,Implementing web service connections with Epic,Integration,Epic EHR,9
+Error Monitoring & Troubleshooting,Diagnosing and resolving interface errors in Epic,Integration,Epic EHR,10
+IDoc Configuration & Monitoring,Building and troubleshooting Intermediate Documents for data exchange,Integration,SAP,1
+SAP PI/PO,Managing middleware for SAP integrations,Integration,SAP,2
+RFC/BAPI Integration,Using Remote Function Calls and BAPIs to integrate SAP with external apps,Integration,SAP,3
+ALE (Application Link Enabling),Configuring ALE for distributed SAP systems,Integration,SAP,4
+EDI Integration,Supporting Electronic Data Interchange with partners/vendors,Integration,SAP,5
+Middleware (Mulesoft/Boomi),Leveraging middleware platforms to connect SAP to non-SAP systems,Integration,SAP,6
+Web Services Integration,Configuring SOAP/REST APIs between SAP and external systems,Integration,SAP,7
+Third-Party System Integration,"Connecting SAP with HR, finance, and supply chain applications.",Integration,SAP,8
+Data Migration (LSMW/ETL),Using Legacy System Migration Workbench and ETL tools for data transfer,Integration,SAP,9
+Error Handling & Monitoring,Identifying and resolving integration failures,Integration,SAP,10
+REST API Integration,Building and maintaining REST API connections between SaaS apps,Integration,SaaS,1
+Webhooks,Implementing real-time event-driven integrations with webhooks,Integration,SaaS,2
+iPaaS Platforms (Zapier/Make/Boomi),Using integration platforms to automate workflows,Integration,SaaS,3
+GraphQL API,Querying and integrating modern APIs with flexible schemas,Integration,SaaS,4
+OAuth Authentication,Configuring secure connections between SaaS applications,Integration,SaaS,5
+ETL Pipelines,"Extracting, transforming, and loading data across SaaS apps",Integration,SaaS,6
+Supabase REST API,Using Supabase endpoints to integrate data and workflows,Integration,SaaS,7
+HubSpot _ Salesforce Sync,Managing CRM integrations for sales and marketing workflows,Integration,SaaS,8
+Data Normalization & Mapping,Standardizing fields and values across SaaS systems,Integration,SaaS,9
+Error Handling & Retry Logic,Designing robust integration flows with error recovery,Integration,SaaS,10
+Epic Resolute Professional Billing (PB),"Managing professional billing workflows, charges, and claims in Epic",Platform,Epic EHR,1
+Epic Resolute Hospital Billing (HB),"Overseeing hospital billing, claims processing, and payment posting in Epic",Platform,Epic EHR,2
+Epic Prelude,Managing patient registration and eligibility verification,Platform,Epic EHR,3
+Epic Cadence,Scheduling and resource management for patient appointments,Platform,Epic EHR,4
+Epic Referrals,Coordinating inbound and outbound patient referrals within Epic,Platform,Epic EHR,5
+Optum ClaimsManager,Using Optum’s ClaimsManager for claim edits and denial prevention,Platform,Epic EHR,6
+TrustCommerce Payment Gateway,Processing patient payments and securing PCI-compliant transactions,Platform,Epic EHR,7
+Hyland OnBase,"Document imaging, scanning, and electronic health record attachment workflows",Platform,Epic EHR,8
+Epic MyChart,"Providing patient portal access for billing, scheduling, and messaging",Platform,Epic EHR,9
+Epic Security/Access,Configuring security templates and access for billing and scheduling staff,Platform,Epic EHR,10
+SAP MM,Managing procurement and inventory for clinical drug supply chain,Platform,SAP,1
+SAP PP ,Supporting manufacturing workflows and production scheduling,Platform,SAP,2
+SAP WM,"Coordinating storage, picking, and distribution of drug products",Platform,SAP,3
+SAP QM,Ensuring compliance and quality checks in drug manufacturing,Platform,SAP,4
+SAP SD,"Handling distribution, logistics, and order fulfillment processes",Platform,SAP,5
+SAP ATTP,Tracking and serializing drug supply for regulatory compliance,Platform,SAP,6
+SAP EWM,Advanced warehouse automation and cold chain distribution,Platform,SAP,7
+SAP LMS/SuccessFactors Learning,"Providing user training, compliance documentation, and certifications",Platform,SAP,8
+SAP GxP Compliance Tools,Maintaining validated systems aligned with pharmaceutical regulations,Platform,SAP,9
+SAP Solution Manager,"Supporting system documentation, change management, and validation",Platform,SAP,10
+Supabase (PostgreSQL as a Service),"Managing databases, APIs, and authentication for SaaS apps",Platform,SaaS,1
+Vercel Deployment,Hosting and deploying modern front-end applications,Platform,SaaS,2
+HubSpot CRM,"Managing customer relationships, workflows, and integrations",Platform,SaaS,3
+GitHub (Code Repository & CI/CD),"Version control, collaboration, and automated deployments",Platform,SaaS,4
+Windsurf AI IDE,Developing and deploying AI-powered workflows and web apps,Platform,SaaS,5
+Notion Database,Organizing structured/unstructured data for workflows and documentation,Platform,SaaS,6
+Airtable,Lightweight relational database for integrations and automations,Platform,SaaS,7
+Clay AI Enrichment,Enriching company/contact data with AI-driven pipelines,Platform,SaaS,8
+Canva API,Generating design assets and templates programmatically,Platform,SaaS,9
+Figma,Collaborative UI design and design system management,Platform,SaaS,10
+Epic Clarity,Using Epic’s relational reporting database for enterprise-level queries,Reporting,Epic EHR,1
+SQL,Writing queries to extract and transform Epic reporting data,Reporting,Epic EHR,2
+Epic Reporting Workbench,Building operational reports within Epic for end users,Reporting,Epic EHR,3
+Epic Radar Dashboards,Creating Epic-native dashboards for real-time insights,Reporting,Epic EHR,4
+Tableau,Designing interactive dashboards and visualizations using Epic/Clarity data,Reporting,Epic EHR,5
+Epic Cogito Data Warehouse,Leveraging Epic’s enterprise data warehouse for large-scale analytics,Reporting,Epic EHR,6
+Power BI,Building dashboards and KPIs using Epic data extracts,Reporting,Epic EHR,7
+Epic SlicerDicer,Self-service tool for clinical and operational data exploration,Reporting,Epic EHR,8
+Excel,Performing ad hoc reporting and data validation from Epic extracts,Reporting,Epic EHR,9
+Crystal Reports,Legacy reporting tool for formatted reports from Epic data sources,Reporting,Epic EHR,10
+SAP Crystal Reports,Designing formatted operational and financial reports from SAP data,Reporting,SAP,1
+SAP BW (Business Warehouse),Aggregating and analyzing SAP data in a centralized warehouse,Reporting,SAP,2
+SAP HANA Analytics,Leveraging in-memory analytics for real-time reporting,Reporting,SAP,3
+SAP Query,Building custom queries for end-user reporting without advanced coding,Reporting,SAP,4
+SAP Fiori Analytical Apps,Using role-based dashboards and KPIs within SAP Fiori,Reporting,SAP,5
+SQL (Structured Query Language),Querying SAP HANA and external databases for analysis,Reporting,SAP,6
+Power BI,Creating dashboards and visualizations with SAP data extracts,Reporting,SAP,7
+Tableau,Building interactive dashboards from SAP BW/HANA data sources,Reporting,SAP,8
+Excel,Performing ad hoc analysis with SAP report outputs,Reporting,SAP,9
+ETL Tools (Data Services/LSMW),Extracting and transforming SAP data for reporting needs,Reporting,SAP,10
+SQL (Postgres/MySQL),Querying SaaS databases directly to extract structured reporting data,Reporting,SaaS,1
+Tableau,Designing enterprise-grade dashboards and interactive reports,Reporting,SaaS,2
+Power BI,"Building KPIs, scorecards, and interactive dashboards across SaaS datasets",Reporting,SaaS,3
+Metabase,Creating lightweight SQL-driven dashboards from SaaS databases,Reporting,SaaS,4
+Google Data Studio (Looker Studio),Designing cloud-based dashboards for SaaS and marketing data,Reporting,SaaS,5
+Supabase Dashboards,Visualizing data from Supabase/Postgres directly,Reporting,SaaS,6
+Recharts / D3.js,Developing custom data visualizations for embedded SaaS applications,Reporting,SaaS,7
+Excel (with SaaS Connectors),Performing ad hoc analysis with API-connected Excel reports,Reporting,SaaS,8
+Jupyter Notebooks,Exploring data and building ad hoc reports using Python and Pandas,Reporting,SaaS,9
+Airtable Interfaces,Delivering lightweight dashboards directly within Airtable,Reporting,SaaS,10
+Epic System Pulse,Monitoring real-time system health and performance metrics in Epic,Monitoring,Epic EHR,1
+Epic Job Monitor,Tracking status of scheduled batch jobs and overnight processes,Monitoring,Epic EHR,2
+Audit Logs & User Activity,Reviewing system logs for compliance and security oversight,Monitoring,Epic EHR,3
+Epic Performance Workbench,Analyzing application performance and troubleshooting slowdowns,Monitoring,Epic EHR,4
+Interface Monitoring,Tracking HL7/FHIR data feeds between Epic and external systems,Monitoring,Epic EHR,5
+Epic Care Everywhere Logs,Monitoring cross-organizational health information exchanges,Monitoring,Epic EHR,6
+Error Queue Management,Identifying and resolving errors in billing and clinical workflows,Monitoring,Epic EHR,7
+Epic Alerts & Notifications,Configuring automated alerts for job failures or downtime events,Monitoring,Epic EHR,8
+Downtime Procedures Monitoring,Overseeing system readiness for scheduled or unscheduled downtime,Monitoring,Epic EHR,9
+Epic Reporting Dashboards,Using reports/dashboards to monitor KPIs across departments,Monitoring,Epic EHR,10
+SAP Solution Manager (SolMan),"Centralized monitoring of SAP systems, performance, and workflows",Monitoring,SAP,1
+SAP SM37 (Job Monitoring),Tracking scheduled and background jobs for success or failure,Monitoring,SAP,2
+IDoc Monitoring (WE02/WE05),Reviewing and troubleshooting Intermediate Document processing errors,Monitoring,SAP,3
+System Logs & Alerts (SM21/RZ20),"Monitoring system logs, alerts, and critical events",Monitoring,SAP,4
+ST03N (Workload Analysis),"Analyzing system performance, response times, and user load",Monitoring,SAP,5
+SAP EarlyWatch Alert,Proactive monitoring and performance health checks for SAP landscapes,Monitoring,SAP,6
+DBACOCKPIT,Tracking performance and space utilization of SAP databases,Monitoring,SAP,7
+Security Audit Log,Monitoring SAP user activity for compliance and suspicious behavior,Monitoring,SAP,8
+Transport Monitoring (STMS),Overseeing system transport activity and change management,Monitoring,SAP,9
+Custom Alerts & Dashboards,Building tailored dashboards for supply chain/manufacturing KPIs,Monitoring,SAP,10
+Datadog,"Monitoring application performance, logs, and infrastructure health for SaaS apps",Monitoring,SaaS,1
+New Relic APM,Tracking application performance and error rates in SaaS environments,Monitoring,SaaS,2
+AWS CloudWatch,"Monitoring infrastructure metrics, logs, and alarms for SaaS deployments",Monitoring,SaaS,3
+Sentry,Capturing and tracking application errors for faster debugging,Monitoring,SaaS,4
+Grafana Dashboards,Visualizing SaaS metrics and integrating with multiple monitoring sources,Monitoring,SaaS,5
+Prometheus Metrics,Collecting time-series data for custom SaaS application monitoring,Monitoring,SaaS,6
+LogRocket,Monitoring user sessions and front-end errors in SaaS applications,Monitoring,SaaS,7
+Supabase Monitoring,Using built-in analytics and health metrics for Supabase projects,Monitoring,SaaS,8
+Mixpanel Analytics,Tracking user behavior and product engagement in SaaS applications,Monitoring,SaaS,9
+Google Analytics 4 (GA4),Monitoring web and product usage trends for SaaS applications,Monitoring,SaaS,10
+Epic Charge Router,Automating charge capture and routing to billing workflows,Automation/AI,Epic EHR,1
+Epic Workqueues,"Managing automated task routing for claims, billing, and scheduling",Automation/AI,Epic EHR,2
+Epic Batch Jobs,"Running scheduled processes for reporting, updates, and data movement",Automation/AI,Epic EHR,3
+Epic Best Practice Advisories,Triggering clinical alerts and risk models in workflows,Automation/AI,Epic EHR,4
+Epic Cogito AI,Leveraging Epic’s analytics/ML layer for predictive insights and automation,Automation/AI,Epic EHR,5
+Epic Note Summarization,Extracting structured insights from unstructured clinical notes,Automation/AI,Epic EHR,6
+Interface Engine Automation,Automating HL7/FHIR data flows across Epic and external systems,Automation/AI,Epic EHR,7
+UiPath / Blue Prism RPA,Automating manual Epic workflows through robotic process automation,Automation/AI,Epic EHR,8
+Epic Risk Scoring Models,"Applying AI-driven readmission, sepsis, or patient risk predictions",Automation/AI,Epic EHR,9
+Custom Python/SQL Automation,"Building ETL, AI models, and job scripts with Epic Clarity data",Automation/AI,Epic EHR,10
+SAP Batch Jobs (SM36/SM37),Scheduling and monitoring automated recurring processes in SAP,Automation/AI,SAP,1
+SAP Workflow Engine,Automating approval and operational workflows across supply chain modules,Automation/AI,SAP,2
+IDoc Processing Automation,Automatically generating and routing Intermediate Documents for integrations,Automation/AI,SAP,3
+SAP MRP,Using automation to plan and balance material supply/demand,Automation/AI,SAP,4
+SAP PI/PO,Managing automated data flows between SAP and external systems,Automation/AI,SAP,5
+AI/ML Demand Forecasting,Applying predictive analytics to plan drug manufacturing and distribution,Automation/AI,SAP,6
+SAP Quality Management AI,Using ML to detect quality issues and defects in production data,Automation/AI,SAP,7
+SAP ATTP,"Automating serialization, compliance, and predictive drug tracking",Automation/AI,SAP,8
+UiPath/Blue Prism,Automating repetitive SAP transactions and workflows with RPA,Automation/AI,SAP,9
+Custom ABAP/LSMW Programs,Building custom scripts for automation and data migration tasks,Automation/AI,SAP,10
+GitHub Actions CI/CD,"Automating builds, tests, and deployments for SaaS applications",Automation/AI,SaaS,1
+Zapier,Automating workflows and integrations between SaaS platforms,Automation/AI,SaaS,2
+HubSpot Workflows,Automating CRM processes such as lead scoring and customer outreach,Automation/AI,SaaS,3
+Vercel Deployments,Automating SaaS app deployments with serverless hosting,Automation/AI,SaaS,4
+Make (Integromat),Building advanced no-code automation flows across SaaS tools,Automation/AI,SaaS,5
+Clay AI Enrichment,Automating data enrichment and scoring pipelines using AI,Automation/AI,SaaS,6
+Supabase Edge Functions,Running serverless automation logic inside Supabase apps,Automation/AI,SaaS,7
+Predictive Analytics (AI/ML Models),Applying ML models for forecasting and decision support in SaaS,Automation/AI,SaaS,8
+Python ETL Jobs,"Automating data extraction, transformation, and loading across SaaS systems",Automation/AI,SaaS,9
+Recommendation Engines,Using AI embeddings to drive personalization and search in SaaS apps,Automation/AI,SaaS,10

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="500" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#EEF2FF"/>
+      <stop offset="100%" stop-color="#E0E7FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" rx="20" fill="url(#g1)"/>
+  <g stroke="#6366F1" stroke-width="2" opacity="0.9">
+    <rect x="60" y="80" width="200" height="120" rx="12" fill="#ffffff"/>
+    <rect x="300" y="80" width="200" height="120" rx="12" fill="#ffffff"/>
+    <rect x="540" y="80" width="200" height="120" rx="12" fill="#ffffff"/>
+    <rect x="180" y="260" width="220" height="140" rx="12" fill="#ffffff"/>
+    <rect x="440" y="260" width="220" height="140" rx="12" fill="#ffffff"/>
+    <path d="M160 200 C220 240, 260 240, 320 200" stroke="#94A3B8" fill="none"/>
+    <path d="M400 200 C460 240, 500 240, 560 200" stroke="#94A3B8" fill="none"/>
+    <path d="M270 260 C270 220, 330 220, 330 260" stroke="#94A3B8" fill="none"/>
+    <path d="M550 260 C550 220, 610 220, 610 260" stroke="#94A3B8" fill="none"/>
+  </g>
+  <text x="400" y="40" text-anchor="middle" fill="#1F2937" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="22" font-weight="600">Overview Diagram</text>
+</svg>
