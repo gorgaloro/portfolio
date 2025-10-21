@@ -14,7 +14,7 @@ const PAGE_SIZE = 20 // 5 x 4
 
 export default function LogoExplorer() {
   const [tags, setTags] = useState<string[]>([])
-  const [selected, setSelected] = useState<string>('Top 200')
+  const [selected, setSelected] = useState<string>('All')
   const [items, setItems] = useState<CompanyItem[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
@@ -29,9 +29,9 @@ export default function LogoExplorer() {
         const { tags: fetched = [] } = (await res.json()) as { tags: string[] }
         if (cancelled) return
         const unique = Array.from(new Set(fetched)).sort((a, b) => a.localeCompare(b))
-        setTags(['Top 200', ...unique])
+        setTags(['All', ...unique])
       } catch {
-        if (!cancelled) setTags(['Top 200'])
+        if (!cancelled) setTags(['All'])
       }
     }
     loadTags()
