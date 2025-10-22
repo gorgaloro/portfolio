@@ -226,7 +226,7 @@ export default async function TechStackPage({
             </div>
           </div>
           {/* Area tabs */}
-          <div className="mb-6">
+          <div className="mb-6 hidden sm:block">
             <div className="flex w-full items-center rounded-full bg-white/90 px-1 py-0 text-sm font-medium text-zinc-800 shadow-lg ring-1 shadow-zinc-800/5 ring-zinc-900/5 backdrop-blur-sm dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10">
               <ul className="flex w-full items-center h-10 rounded-full bg-black text-white px-2 py-1 overflow-hidden">
                 {areaTabs.map((a) => (
@@ -248,7 +248,7 @@ export default async function TechStackPage({
           </div>
 
           {/* 3-column grid grouped by application */}
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="hidden sm:grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {apps.map((app) => {
               const list = byApp(app)
               if (list.length === 0) return null
