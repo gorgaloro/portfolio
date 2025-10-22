@@ -253,7 +253,7 @@ export default function ProgramDelivery() {
               Delivery is driven by clear communication and collaboration. Everyone knows what’s happening, blockers are addressed quickly, and teams stay focused on critical-path work so milestones and phase gates are met with confidence.
             </p>
           </div>
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="mt-8 hidden sm:grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {capabilityColumns.map(({ name, header, visual, alt }) => (
               <div key={name} className="text-center">
                 <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
