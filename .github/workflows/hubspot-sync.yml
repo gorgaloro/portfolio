@@ -11,6 +11,9 @@ permissions:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    concurrency:
+      group: hubspot-sync
+      cancel-in-progress: false
     timeout-minutes: 10
     steps:
       - name: Call Supabase Edge Function
