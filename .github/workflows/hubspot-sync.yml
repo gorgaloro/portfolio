@@ -1,0 +1,28 @@
+name: Sync HubSpot Deals
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Call Supabase Edge Function
+        env:
+          FUNCTION_URL: https://rvochvbcvvhdbglxpwbj.functions.supabase.co/sync-hubspot-deals?archived=true&assoc=true&companies=true
+          SRK: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -eo pipefail
+          echo "Invoking: $FUNCTION_URL"
+          http_code=$(curl -sS -w "%{http_code}" -o /tmp/resp.json -X POST "$FUNCTION_URL" \
+            -H "Authorization: Bearer ${SRK}" \
+            -H "Content-Type: application/json")
+          echo "HTTP ${http_code}"
+          cat /tmp/resp.json
+          test "$http_code" -ge 200 -a "$http_code" -lt 300
