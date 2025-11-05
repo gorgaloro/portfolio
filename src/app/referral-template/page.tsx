@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import { Container } from '@/components/Container'
 import { Section } from '@/components/Section'
 import Link from 'next/link'
+import { headers } from 'next/headers'
 
 export const metadata = {
   title: 'Referral Template',
@@ -9,11 +10,19 @@ export const metadata = {
 }
 
 export default async function ReferralTemplatePage() {
+  async function getBaseUrl() {
+    const h = await headers()
+    const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000'
+    const proto = h.get('x-forwarded-proto') ?? 'https'
+    return `${proto}://${host}`
+  }
+
+  const baseUrl = await getBaseUrl()
   const companyId = 193056111306
   const pipelineId = '1320210144'
 
   async function fetchDeals() {
-    const r = await fetch(`/api/company-jobs?companyId=${companyId}&pipelineId=${encodeURIComponent(pipelineId)}`, { cache: 'no-store' })
+    const r = await fetch(`${baseUrl}/api/company-jobs?companyId=${companyId}&pipelineId=${encodeURIComponent(pipelineId)}`, { cache: 'no-store' })
     if (!r.ok) return { deals: [] as any[] }
     return r.json() as Promise<{ deals: any[] }>
   }
@@ -22,7 +31,7 @@ export default async function ReferralTemplatePage() {
   const missing = deals.filter(d => !d.summary)
   const needRecompute = deals.some(d => d.summary && Number(d.summary.total_fit_percent ?? 0) <= 0)
   if (missing.length > 0 || needRecompute) {
-    await fetch(`/api/analyze-job-fit`, {
+    await fetch(`${baseUrl}/api/analyze-job-fit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       cache: 'no-store',
