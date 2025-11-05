@@ -1,8 +1,10 @@
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 function getClient() {
-  const url = process.env.URL || process.env.SUPABASE_URL || ''
+  const url = process.env.SUPABASE_URL || ''
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
   if (!url || !key) throw new Error('Missing Supabase server env')
   return createClient(url, key)

@@ -1,3 +1,5 @@
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 
 const SUPABASE_FUNCTION_URL = 'https://rvochvbcvvhdbglxpwbj.functions.supabase.co/analyze-job-fit'
