@@ -13,7 +13,6 @@ export async function POST(req: Request) {
       profile_url?: string
       profile_html?: string
       recompute?: boolean
-      debug?: boolean
     }
 
     const serviceRole = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -43,7 +42,6 @@ export async function POST(req: Request) {
       profile_url: body.profile_url ?? 'https://www.allenwalker.info/about',
       profile_html: body.profile_html,
       recompute: body.recompute ?? false,
-      debug: body.debug === true,
     }
 
     const resp = await fetch(SUPABASE_FUNCTION_URL, {
