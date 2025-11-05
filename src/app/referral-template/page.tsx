@@ -1,7 +1,7 @@
+export const dynamic = 'force-dynamic'
 import { Container } from '@/components/Container'
 import { Section } from '@/components/Section'
 import Link from 'next/link'
-import { headers } from 'next/headers'
 
 export const metadata = {
   title: 'Referral Template',
@@ -9,31 +9,28 @@ export const metadata = {
 }
 
 export default async function ReferralTemplatePage() {
-  async function getBaseUrl() {
-    const h = await headers()
-    const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000'
-    const proto = h.get('x-forwarded-proto') ?? 'http'
-    return `${proto}://${host}`
-  }
-
-  const baseUrl = await getBaseUrl()
   const companyId = 193056111306
   const pipelineId = '1320210144'
 
   async function fetchDeals() {
-    const r = await fetch(`${baseUrl}/api/company-jobs?companyId=${companyId}&pipelineId=${encodeURIComponent(pipelineId)}`, { cache: 'no-store' })
+    const r = await fetch(`/api/company-jobs?companyId=${companyId}&pipelineId=${encodeURIComponent(pipelineId)}`, { cache: 'no-store' })
     if (!r.ok) return { deals: [] as any[] }
     return r.json() as Promise<{ deals: any[] }>
   }
 
   let { deals } = await fetchDeals()
   const missing = deals.filter(d => !d.summary)
-  if (missing.length > 0) {
-    await fetch(`${baseUrl}/api/analyze-job-fit`, {
+  const needRecompute = deals.some(d => d.summary && Number(d.summary.total_fit_percent ?? 0) <= 0)
+  if (missing.length > 0 || needRecompute) {
+    await fetch(`/api/analyze-job-fit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       cache: 'no-store',
-      body: JSON.stringify({ dealIds: missing.map((d: any) => d.deal_id), profile_url: 'https://www.allenwalker.info/about', recompute: false })
+      body: JSON.stringify({
+        dealIds: (missing.length ? missing : deals).map((d: any) => d.deal_id),
+        profile_url: 'https://www.allenwalker.info/about',
+        recompute: needRecompute
+      })
     }).catch(() => null)
     const refreshed = await fetchDeals()
     deals = refreshed.deals
@@ -74,9 +71,9 @@ export default async function ReferralTemplatePage() {
             {deals.map((d) => {
               const attrs: any[] = d.attributes || []
               const byCat = {
-                industry: attrs.filter(a => a.category === 'industry'),
-                process: attrs.filter(a => a.category === 'process'),
-                technical: attrs.filter(a => a.category === 'technical'),
+                industry: attrs.filter(a => a.category === 'industry').slice(0, 5),
+                process: attrs.filter(a => a.category === 'process').slice(0, 5),
+                technical: attrs.filter(a => a.category === 'technical').slice(0, 5),
               }
               const s = d.summary || {}
               return (
