@@ -17,6 +17,9 @@ export async function GET(req: Request) {
     const pipeline = searchParams.get('pipeline') || 'Job Applications'
     if (!companyId) return NextResponse.json({ deals: [] })
 
+    const hasUrl = !!process.env.SUPABASE_URL
+    const hasKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY
+    console.log('[company-jobs] env', { hasUrl, hasKey })
     const supabase = getClient()
     const links = await supabase.from('hubspot_deal_companies').select('deal_id').eq('company_id', companyId)
     if (links.error) return NextResponse.json({ error: links.error.message }, { status: 500 })
