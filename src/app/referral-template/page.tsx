@@ -18,10 +18,10 @@ export default async function ReferralTemplatePage() {
 
   const baseUrl = await getBaseUrl()
   const companyId = 193056111306
-  const pipeline = 'Job Applications'
+  const pipelineId = '1320210144'
 
   async function fetchDeals() {
-    const r = await fetch(`${baseUrl}/api/company-jobs?companyId=${companyId}&pipeline=${encodeURIComponent(pipeline)}`, { cache: 'no-store' })
+    const r = await fetch(`${baseUrl}/api/company-jobs?companyId=${companyId}&pipelineId=${encodeURIComponent(pipelineId)}`, { cache: 'no-store' })
     if (!r.ok) return { deals: [] as any[] }
     return r.json() as Promise<{ deals: any[] }>
   }
@@ -69,7 +69,7 @@ export default async function ReferralTemplatePage() {
         <Section title="Jobs at Company">
           <div className="space-y-6">
             {deals.length === 0 && (
-              <div className="text-sm text-zinc-500">No jobs found for this company in pipeline “{pipeline}”.</div>
+              <div className="text-sm text-zinc-500">No jobs found for this company in pipeline ID “{pipelineId}”.</div>
             )}
             {deals.map((d) => {
               const attrs: any[] = d.attributes || []

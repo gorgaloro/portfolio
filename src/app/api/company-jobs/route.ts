@@ -14,24 +14,28 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url)
     const companyId = Number(searchParams.get('companyId') || '0')
-    const pipeline = searchParams.get('pipeline') || 'Job Applications'
+    const pipeline = searchParams.get('pipeline') || undefined
+    const pipelineId = searchParams.get('pipelineId') || undefined
     if (!companyId) return NextResponse.json({ deals: [] })
 
-    const hasUrl = !!process.env.SUPABASE_URL
-    const hasKey = !!process.env.SUPABASE_SERVICE_ROLE_KEY
-    console.log('[company-jobs] env', { hasUrl, hasKey })
     const supabase = getClient()
     const links = await supabase.from('hubspot_deal_companies').select('deal_id').eq('company_id', companyId)
     if (links.error) return NextResponse.json({ error: links.error.message }, { status: 500 })
     const ids = (links.data || []).map((r: any) => r.deal_id)
     if (!ids.length) return NextResponse.json({ deals: [] })
 
-    const dealsResp = await supabase
+    let query = supabase
       .from('hubspot_deals')
       .select('deal_id, dealname, job_title, job_url, pipeline, hs_lastmodifieddate')
       .in('deal_id', ids)
-      .eq('pipeline', pipeline)
-      .order('hs_lastmodifieddate', { ascending: false })
+
+    if (pipelineId) {
+      query = query.eq('pipeline', pipelineId)
+    } else if (pipeline) {
+      query = query.eq('pipeline', pipeline)
+    }
+
+    const dealsResp = await query.order('hs_lastmodifieddate', { ascending: false })
     if (dealsResp.error) return NextResponse.json({ error: dealsResp.error.message }, { status: 500 })
     const deals = dealsResp.data || []
     if (!deals.length) return NextResponse.json({ deals: [] })
