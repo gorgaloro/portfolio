@@ -17,6 +17,7 @@
     "@mdx-js/react": "^3.1.0",
     "@next/mdx": "^15.5.0",
     "@tailwindcss/typography": "^0.5.16",
+    "@supabase/supabase-js": "^2.46.1",
     "cheerio": "^1.1.2",
     "clsx": "^2.1.1",
     "fast-glob": "^3.3.3",

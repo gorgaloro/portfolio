@@ -1,12 +1,60 @@
 import { Container } from '@/components/Container'
 import { Section } from '@/components/Section'
+import Link from 'next/link'
+import { headers } from 'next/headers'
 
 export const metadata = {
   title: 'Referral Template',
   description: 'Base template for referral pages',
 }
 
-export default function ReferralTemplatePage() {
+export default async function ReferralTemplatePage() {
+  async function getBaseUrl() {
+    const h = headers()
+    const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000'
+    const proto = h.get('x-forwarded-proto') ?? 'http'
+    return `${proto}://${host}`
+  }
+
+  const baseUrl = await getBaseUrl()
+  const companyId = 193056111306
+  const pipeline = 'Job Applications'
+
+  async function fetchDeals() {
+    const r = await fetch(`${baseUrl}/api/company-jobs?companyId=${companyId}&pipeline=${encodeURIComponent(pipeline)}`, { cache: 'no-store' })
+    if (!r.ok) return { deals: [] as any[] }
+    return r.json() as Promise<{ deals: any[] }>
+  }
+
+  let { deals } = await fetchDeals()
+  const missing = deals.filter(d => !d.summary)
+  if (missing.length > 0) {
+    await fetch(`${baseUrl}/api/analyze-job-fit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      body: JSON.stringify({ dealIds: missing.map((d: any) => d.deal_id), profile_url: 'https://www.allenwalker.info/about', recompute: false })
+    }).catch(() => null)
+    const refreshed = await fetchDeals()
+    deals = refreshed.deals
+  }
+
+  function CategoryList({ title, items }: { title: string, items: any[] }) {
+    return (
+      <div>
+        <h4 className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-3">{title}</h4>
+        <ul className="space-y-2">
+          {items.map((a) => (
+            <li key={a.attribute_name} className="flex items-center gap-3 text-sm">
+              <span className={`inline-block h-3 w-3 rounded-full ${a.fit_color === 'green' ? 'bg-emerald-500' : a.fit_color === 'yellow' ? 'bg-amber-400' : 'bg-zinc-400 opacity-50'}`} />
+              <span className={a.fit_color === 'grey' ? 'text-zinc-400' : 'text-zinc-900 dark:text-zinc-100'}>{a.attribute_name}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
   return (
     <Container className="mt-10 sm:mt-14">
       <div className="rounded-2xl bg-white p-6 ring-1 ring-zinc-900/5 dark:bg-zinc-900">
@@ -19,7 +67,44 @@ export default function ReferralTemplatePage() {
         </Section>
 
         <Section title="Jobs at Company">
-          <div className="h-0" />
+          <div className="space-y-6">
+            {deals.length === 0 && (
+              <div className="text-sm text-zinc-500">No jobs found for this company in pipeline “{pipeline}”.</div>
+            )}
+            {deals.map((d) => {
+              const attrs: any[] = d.attributes || []
+              const byCat = {
+                industry: attrs.filter(a => a.category === 'industry'),
+                process: attrs.filter(a => a.category === 'process'),
+                technical: attrs.filter(a => a.category === 'technical'),
+              }
+              const s = d.summary || {}
+              return (
+                <div key={d.deal_id} className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-6">
+                  <div className="flex items-baseline justify-between gap-4">
+                    <Link href={d.job_url || '#'} target="_blank" className="text-lg font-semibold text-emerald-600 hover:underline">
+                      {d.job_title || 'Untitled Role'}
+                    </Link>
+                    <div className="shrink-0 text-right">
+                      <div className="text-xs text-zinc-500">Fit Score</div>
+                      <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{s?.total_fit_percent != null ? `${Number(s.total_fit_percent).toFixed(0)}%` : '—'}</div>
+                    </div>
+                  </div>
+                  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-2">
+                      <div className="text-sm text-zinc-700 dark:text-zinc-300 min-h-24 whitespace-pre-wrap">{s?.narrative || 'Analyzing…'}</div>
+                    </div>
+                    <div className="md:col-span-1"></div>
+                  </div>
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <CategoryList title="Industry Fit" items={byCat.industry} />
+                    <CategoryList title="Process Fit" items={byCat.process} />
+                    <CategoryList title="Technical Fit" items={byCat.technical} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
         </Section>
 
         <Section title="Call to Action">
