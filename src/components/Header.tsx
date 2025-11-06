@@ -225,6 +225,8 @@ function Brand() {
 }
 
 export function Header() {
+  const pathname = usePathname()
+  if (pathname?.startsWith('/admin')) return null
   return (
     <header className="relative z-50 flex flex-none">
       <Container className="w-full mt-[50px] py-0">

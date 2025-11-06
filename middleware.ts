@@ -35,7 +35,9 @@ export async function middleware(req: NextRequest) {
   if (isAdminSignIn) {
     const requestHeaders = new Headers(req.headers)
     requestHeaders.set('x-admin-layout', '1')
-    return NextResponse.next({ request: { headers: requestHeaders } })
+    const res = NextResponse.next({ request: { headers: requestHeaders } })
+    res.cookies.set('admin_layout', '1', { path: '/admin', httpOnly: false, sameSite: 'lax' })
+    return res
   }
 
   if (isLoginApi) return NextResponse.next()
@@ -46,7 +48,9 @@ export async function middleware(req: NextRequest) {
   if (ok) {
     const requestHeaders = new Headers(req.headers)
     if (isAdminUI) requestHeaders.set('x-admin-layout', '1')
-    return NextResponse.next({ request: { headers: requestHeaders } })
+    const res = NextResponse.next({ request: { headers: requestHeaders } })
+    if (isAdminUI) res.cookies.set('admin_layout', '1', { path: '/admin', httpOnly: false, sameSite: 'lax' })
+    return res
   }
 
   if (isAdminApi) {

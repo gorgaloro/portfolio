@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
 import { Providers } from '@/app/providers'
 import { Layout } from '@/components/Layout'
 
@@ -53,9 +53,12 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic'
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const h = await headers()
-  const isAdmin = h.get('x-admin-layout') === '1'
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const h = headers()
+  const c = cookies()
+  const isAdminHeader = h.get('x-admin-layout') === '1'
+  const isAdminCookie = c.get('admin_layout')?.value === '1'
+  const isAdmin = isAdminHeader || isAdminCookie
 
   if (isAdmin) {
     return (

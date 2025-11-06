@@ -1,4 +1,6 @@
+"use client"
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 import { ContainerInner, ContainerOuter } from '@/components/Container'
 
@@ -20,6 +22,8 @@ function NavLink({
 }
 
 export function Footer() {
+  const pathname = usePathname()
+  if (pathname?.startsWith('/admin')) return null
   return (
     <footer className="mt-32 flex-none">
       <ContainerOuter>
