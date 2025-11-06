@@ -1,0 +1,52 @@
+
+> allen-portfolio@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.0
+   - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully in 16.4min
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/24) ...
+   Generating static pages (6/24) 
+   Generating static pages (12/24) 
+   Generating static pages (18/24) 
+ ✓ Generating static pages (24/24)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                                          Size  First Load JS  Revalidate  Expire
+┌ ƒ /                                                               162 B         105 kB
+├ ○ /_not-found                                                     149 B         102 kB
+├ ○ /about                                                          174 B         111 kB
+├ ƒ /api/company-logos                                              149 B         102 kB
+├ ○ /api/company-tags                                               149 B         102 kB         30m      1y
+├ ○ /articles                                                     3.02 kB         113 kB
+├ ƒ /articles/changing-the-narrative-through-unrealized-earnings  3.26 kB         110 kB
+├ ƒ /articles/exploring-whats-next                                3.26 kB         110 kB
+├ ƒ /articles/launching-a-portfolio-site                          3.26 kB         110 kB
+├ ○ /board-advisory                                               1.99 kB         107 kB
+├ ○ /business-development                                           149 B         102 kB
+├ ○ /community                                                      149 B         102 kB
+├ ○ /community-organizer                                            149 B         102 kB
+├ ƒ /feed.xml                                                       149 B         102 kB
+├ ○ /icon.svg                                                         0 B            0 B
+├ ○ /program-delivery                                               149 B         102 kB
+├ ○ /projects                                                       149 B         102 kB
+├ ○ /referral-template                                              149 B         102 kB
+├ ○ /speaking                                                       170 B         105 kB
+├ ƒ /tech-stack                                                     170 B         105 kB
+├ ○ /thank-you                                                      149 B         102 kB
+└ ○ /uses                                                           170 B         105 kB
++ First Load JS shared by all                                      102 kB
+  ├ chunks/255-01c481785f268126.js                                45.7 kB
+  ├ chunks/4bd1b696-c023c6e3521b1417.js                           54.2 kB
+  └ other shared chunks (total)                                   1.93 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -79,10 +79,12 @@ export default async function ReferralTemplatePage() {
             )}
             {deals.map((d) => {
               const attrs: any[] = d.attributes || []
+              const priority: Record<string, number> = { green: 0, yellow: 1, grey: 2 }
+              const sortByColor = (arr: any[]) => arr.sort((x, y) => (priority[x.fit_color] ?? 3) - (priority[y.fit_color] ?? 3))
               const byCat = {
-                industry: attrs.filter(a => a.category === 'industry').slice(0, 5),
-                process: attrs.filter(a => a.category === 'process').slice(0, 5),
-                technical: attrs.filter(a => a.category === 'technical').slice(0, 5),
+                industry: sortByColor(attrs.filter(a => a.category === 'industry')).slice(0, 5),
+                process: sortByColor(attrs.filter(a => a.category === 'process')).slice(0, 5),
+                technical: sortByColor(attrs.filter(a => a.category === 'technical')).slice(0, 5),
               }
               const s = d.summary || {}
               return (

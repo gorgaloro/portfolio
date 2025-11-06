@@ -44,11 +44,16 @@ export async function GET(req: Request) {
 
     const summaries = await supabase
       .from('job_fit_summary')
-      .select('deal_id, total_fit_percent, industry_fit_percent, process_fit_percent, technical_fit_percent, narrative')
+      .select('deal_id, total_fit_percent, industry_fit_percent, process_fit_percent, technical_fit_percent, narrative, jd_hash, profile_hash')
       .in('deal_id', dealIds)
     const attrs = await supabase
       .from('job_fit_attributes')
       .select('deal_id, attribute_name, category, fit_color, final_rank')
+      .in('deal_id', dealIds)
+
+    const overrides = await supabase
+      .from('job_fit_overrides')
+      .select('deal_id, attribute_name, label, pillar, color, visible, jd_hash, profile_hash')
       .in('deal_id', dealIds)
 
     const sMap = new Map<number, any>()
@@ -59,15 +64,39 @@ export async function GET(req: Request) {
       arr.push(a)
       aMap.set(a.deal_id, arr)
     }
+    const oMap = new Map<number, any[]>()
+    for (const o of overrides.data || []) {
+      const arr = oMap.get(o.deal_id) || []
+      arr.push(o)
+      oMap.set(o.deal_id, arr)
+    }
 
-    const result = deals.map((d: any) => ({
-      deal_id: d.deal_id,
-      job_title: d.job_title || d.dealname,
-      job_url: d.job_url || null,
-      pipeline: d.pipeline,
-      summary: sMap.get(d.deal_id) || null,
-      attributes: (aMap.get(d.deal_id) || []).sort((x, y) => x.final_rank - y.final_rank)
-    }))
+    const result = deals.map((d: any) => {
+      const s = sMap.get(d.deal_id) || null
+      const ovs = (oMap.get(d.deal_id) || []).filter((o: any) => !s || (o.jd_hash === s.jd_hash && o.profile_hash === s.profile_hash))
+      const ovIndex = new Map<string, any>()
+      for (const o of ovs) ovIndex.set(o.attribute_name, o)
+      const base = (aMap.get(d.deal_id) || []).sort((x, y) => x.final_rank - y.final_rank)
+      const patched = base
+        .map((a: any) => {
+          const o = ovIndex.get(a.attribute_name)
+          const label = (o?.label ?? a.attribute_name)
+          const category = (o?.pillar ?? a.category)
+          const fit_color = (o?.color ?? a.fit_color)
+          const visible = (o?.visible ?? true)
+          return { ...a, attribute_name: label, category, fit_color, visible }
+        })
+        .filter((a: any) => a.visible !== false)
+
+      return {
+        deal_id: d.deal_id,
+        job_title: d.job_title || d.dealname,
+        job_url: d.job_url || null,
+        pipeline: d.pipeline,
+        summary: s,
+        attributes: patched,
+      }
+    })
 
     return NextResponse.json({ deals: result })
   } catch (e: any) {
