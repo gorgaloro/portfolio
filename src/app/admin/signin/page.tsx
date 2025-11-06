@@ -1,12 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 export default function SignInPage() {
   const router = useRouter()
-  const search = useSearchParams()
-  const next = search.get('next') || '/admin/referrals'
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -26,6 +24,8 @@ export default function SignInPage() {
       })
       const j = await resp.json().catch(() => ({}))
       if (!resp.ok) throw new Error(j.error || 'Login failed')
+      const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+      const next = params?.get('next') || '/admin/referrals'
       router.push(next)
     } catch (e: any) {
       setMsg(e.message || String(e))
