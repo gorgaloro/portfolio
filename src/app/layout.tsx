@@ -51,6 +51,8 @@ export const metadata: Metadata = {
   },
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const h = await headers()
   const isAdmin = h.get('x-admin-layout') === '1'
