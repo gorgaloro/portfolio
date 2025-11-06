@@ -20,7 +20,7 @@ function classNames(...classes: Array<string | false | null | undefined>) {
 type NavItem = { name: string; href: string; icon: any; current?: boolean }
 
 const baseNav: NavItem[] = [
-  { name: 'Referrals', href: '/admin/referrals', icon: HomeIcon },
+  { name: 'Referrals', href: '/admin', icon: HomeIcon },
   { name: 'Pages', href: '/admin/pages', icon: FolderIcon },
   { name: 'Config', href: '/admin/config', icon: ChartPieIcon },
 ]
