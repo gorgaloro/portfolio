@@ -1,5 +1,5 @@
 import { type Metadata } from 'next'
-
+import { headers } from 'next/headers'
 import { Providers } from '@/app/providers'
 import { Layout } from '@/components/Layout'
 
@@ -51,11 +51,22 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const h = await headers()
+  const isAdmin = h.get('x-admin-layout') === '1'
+
+  if (isAdmin) {
+    return (
+      <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+        <body className="h-full bg-white">
+          <Providers>
+            {children}
+          </Providers>
+        </body>
+      </html>
+    )
+  }
+
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="flex h-full bg-zinc-50 dark:bg-black">

@@ -31,12 +31,23 @@ export async function middleware(req: NextRequest) {
 
   if (!(isAdminUI || isAdminApi)) return NextResponse.next()
 
-  if (isLoginApi || isAdminSignIn) return NextResponse.next()
+  // Always tag admin UI requests so the root layout can suppress the public header/footer
+  if (isAdminSignIn) {
+    const requestHeaders = new Headers(req.headers)
+    requestHeaders.set('x-admin-layout', '1')
+    return NextResponse.next({ request: { headers: requestHeaders } })
+  }
+
+  if (isLoginApi) return NextResponse.next()
 
   const token = req.cookies.get(COOKIE_NAME)?.value
   const ok = await verifyToken(token)
 
-  if (ok) return NextResponse.next()
+  if (ok) {
+    const requestHeaders = new Headers(req.headers)
+    if (isAdminUI) requestHeaders.set('x-admin-layout', '1')
+    return NextResponse.next({ request: { headers: requestHeaders } })
+  }
 
   if (isAdminApi) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
