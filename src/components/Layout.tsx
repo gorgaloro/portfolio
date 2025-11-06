@@ -1,11 +1,12 @@
+'use client'
+
 import { Footer } from '@/components/Footer'
 import { Header } from '@/components/Header'
-import { headers, cookies } from 'next/headers'
+import { usePathname } from 'next/navigation'
 
-export async function Layout({ children }: { children: React.ReactNode }) {
-  const h = await headers()
-  const c = await cookies()
-  const isAdmin = h.get('x-admin-layout') === '1' || c.get('admin_layout')?.value === '1'
+export function Layout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname()
+  const isAdmin = pathname?.startsWith('/admin')
 
   if (isAdmin) {
     return <main className="flex-auto w-full">{children}</main>

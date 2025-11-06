@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Dialog, DialogBackdrop, DialogPanel, TransitionChild } from '@headlessui/react'
 import {
   Bars3Icon,
@@ -36,8 +36,21 @@ export default function AdminShell({ title, children, aside, current = 'Referral
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigation = baseNav.map((n) => ({ ...n, current: n.name === current }))
 
+  useEffect(() => {
+    document.body.classList.add('admin-shell')
+    return () => {
+      document.body.classList.remove('admin-shell')
+    }
+  }, [])
+
   return (
     <div>
+      <style jsx global>{`
+        body.admin-shell header,
+        body.admin-shell footer,
+        body.admin-shell .fixed.inset-0 { display: none !important; }
+        body.admin-shell { background: #fff !important; }
+      `}</style>
       <Dialog open={sidebarOpen} onClose={setSidebarOpen} className="relative z-50 lg:hidden">
         <DialogBackdrop transition className="fixed inset-0 bg-gray-900/80 transition-opacity duration-300 ease-linear data-closed:opacity-0" />
         <div className="fixed inset-0 flex">

@@ -2,11 +2,15 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function SignInPage() {
   const router = useRouter()
+  useEffect(() => {
+    document.body.classList.add('admin-shell')
+    return () => document.body.classList.remove('admin-shell')
+  }, [])
 
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -38,6 +42,12 @@ export default function SignInPage() {
 
   return (
     <div className="flex min-h-full items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+      <style jsx global>{`
+        body.admin-shell header,
+        body.admin-shell footer,
+        body.admin-shell .fixed.inset-0 { display: none !important; }
+        body.admin-shell { background: #fff !important; }
+      `}</style>
       <div className="w-full max-w-sm space-y-10">
         <div>
           <img
