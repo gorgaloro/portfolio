@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 function getClient() {
-  const url = process.env.SUPABASE_URL || ''
+  const url = process.env.SUPABASE_URL || process.env.URL || ''
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
   if (!url || !key) throw new Error('Missing Supabase server env')
   return createClient(url, key)
