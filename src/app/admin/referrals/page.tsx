@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import AdminShell from '@/components/admin/AdminShell'
 
 type AttrRow = {
   deal_id: number
@@ -117,77 +118,79 @@ export default function AdminReferralsPage() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">Admin: Referral Attributes</h1>
-      <div className="flex items-end gap-3">
-        <div>
-          <label className="block text-sm text-zinc-600">Deal ID</label>
-          <input value={dealId} onChange={(e) => setDealId(e.target.value)} placeholder="196977522406" className="mt-1 w-64 rounded-md border border-zinc-300 px-3 py-2 text-sm" />
+    <AdminShell title="Referrals" current="Referrals">
+      <div className="space-y-6">
+        <h1 className="text-2xl font-semibold">Admin: Referral Attributes</h1>
+        <div className="flex items-end gap-3">
+          <div>
+            <label className="block text-sm text-zinc-600">Deal ID</label>
+            <input value={dealId} onChange={(e) => setDealId(e.target.value)} placeholder="196977522406" className="mt-1 w-64 rounded-md border border-zinc-300 px-3 py-2 text-sm" />
+          </div>
+          <button onClick={load} disabled={!dealId || loading} className="rounded-md bg-emerald-600 px-4 py-2 text-white text-sm disabled:opacity-50">{loading ? 'Loading…' : 'Load'}</button>
+          {msg && <div className="text-sm text-zinc-500">{msg}</div>}
         </div>
-        <button onClick={load} disabled={!dealId || loading} className="rounded-md bg-emerald-600 px-4 py-2 text-white text-sm disabled:opacity-50">{loading ? 'Loading…' : 'Load'}</button>
-        {msg && <div className="text-sm text-zinc-500">{msg}</div>}
-      </div>
 
-      {rows && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-sm">
-            <thead>
-              <tr className="text-left text-zinc-500">
-                <th className="py-2 pr-4">Attribute</th>
-                <th className="py-2 pr-4">Pillar</th>
-                <th className="py-2 pr-4">Color</th>
-                <th className="py-2 pr-4">Visible</th>
-                <th className="py-2 pr-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, i) => (
-                <tr key={r.attribute_name} className="border-t border-zinc-100">
-                  <td className="py-2 pr-4">
-                    <input
-                      className="w-80 rounded-md border border-zinc-300 px-2 py-1"
-                      value={r.label}
-                      onChange={(e) => update(i, { label: e.target.value })}
-                    />
-                    <div className="text-xs text-zinc-400">Base: {r.attribute_name}</div>
-                  </td>
-                  <td className="py-2 pr-4">
-                    <select
-                      value={r.pillar}
-                      onChange={(e) => update(i, { pillar: e.target.value as AttrRow['pillar'] })}
-                      className="rounded-md border border-zinc-300 px-2 py-1"
-                    >
-                      <option value="industry">Industry</option>
-                      <option value="process">Process</option>
-                      <option value="technical">Technical</option>
-                    </select>
-                  </td>
-                  <td className="py-2 pr-4">
-                    <select
-                      value={r.color}
-                      onChange={(e) => update(i, { color: e.target.value as AttrRow['color'] })}
-                      className="rounded-md border border-zinc-300 px-2 py-1"
-                    >
-                      <option value="green">Green</option>
-                      <option value="yellow">Yellow</option>
-                      <option value="grey">Grey</option>
-                    </select>
-                  </td>
-                  <td className="py-2 pr-4">
-                    <input type="checkbox" checked={r.visible} onChange={(e) => update(i, { visible: e.target.checked })} />
-                  </td>
-                  <td className="py-2 pr-4 space-x-2">
-                    <button onClick={() => save(i)} className="rounded-md bg-zinc-900 text-white px-3 py-1 text-xs">Save</button>
-                    <button onClick={() => reset(i)} className="rounded-md border border-zinc-300 px-3 py-1 text-xs">Reset</button>
-                    <button onClick={() => suggest(i)} className="rounded-md border border-emerald-600 text-emerald-700 px-3 py-1 text-xs">Suggest</button>
-                    {r.has_override && <span className="text-xs text-emerald-600">overridden</span>}
-                  </td>
+        {rows && (
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="text-left text-zinc-500">
+                  <th className="py-2 pr-4">Attribute</th>
+                  <th className="py-2 pr-4">Pillar</th>
+                  <th className="py-2 pr-4">Color</th>
+                  <th className="py-2 pr-4">Visible</th>
+                  <th className="py-2 pr-4">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+              </thead>
+              <tbody>
+                {rows.map((r, i) => (
+                  <tr key={r.attribute_name} className="border-t border-zinc-100">
+                    <td className="py-2 pr-4">
+                      <input
+                        className="w-80 rounded-md border border-zinc-300 px-2 py-1"
+                        value={r.label}
+                        onChange={(e) => update(i, { label: e.target.value })}
+                      />
+                      <div className="text-xs text-zinc-400">Base: {r.attribute_name}</div>
+                    </td>
+                    <td className="py-2 pr-4">
+                      <select
+                        value={r.pillar}
+                        onChange={(e) => update(i, { pillar: e.target.value as AttrRow['pillar'] })}
+                        className="rounded-md border border-zinc-300 px-2 py-1"
+                      >
+                        <option value="industry">Industry</option>
+                        <option value="process">Process</option>
+                        <option value="technical">Technical</option>
+                      </select>
+                    </td>
+                    <td className="py-2 pr-4">
+                      <select
+                        value={r.color}
+                        onChange={(e) => update(i, { color: e.target.value as AttrRow['color'] })}
+                        className="rounded-md border border-zinc-300 px-2 py-1"
+                      >
+                        <option value="green">Green</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="grey">Grey</option>
+                      </select>
+                    </td>
+                    <td className="py-2 pr-4">
+                      <input type="checkbox" checked={r.visible} onChange={(e) => update(i, { visible: e.target.checked })} />
+                    </td>
+                    <td className="py-2 pr-4 space-x-2">
+                      <button onClick={() => save(i)} className="rounded-md bg-zinc-900 text-white px-3 py-1 text-xs">Save</button>
+                      <button onClick={() => reset(i)} className="rounded-md border border-zinc-300 px-3 py-1 text-xs">Reset</button>
+                      <button onClick={() => suggest(i)} className="rounded-md border border-emerald-600 text-emerald-700 px-3 py-1 text-xs">Suggest</button>
+                      {r.has_override && <span className="text-xs text-emerald-600">overridden</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </AdminShell>
   )
 }

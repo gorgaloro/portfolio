@@ -25,6 +25,11 @@ export async function GET(req: Request) {
 
     const supabase = getClient()
     const hashes = await getHashes(supabase, dealId)
+    const summaryResp = await supabase
+      .from('job_fit_summary')
+      .select('deal_id, total_fit_percent, industry_fit_percent, process_fit_percent, technical_fit_percent, narrative, jd_hash, profile_hash, analyzed_at')
+      .eq('deal_id', dealId)
+      .maybeSingle()
 
     const attrs = await supabase
       .from('job_fit_attributes')
@@ -60,7 +65,13 @@ export async function GET(req: Request) {
       }
     })
 
-    return NextResponse.json({ deal_id: dealId, jd_hash: hashes.jd_hash, profile_hash: hashes.profile_hash, attributes: rows })
+    return NextResponse.json({
+      deal_id: dealId,
+      jd_hash: hashes.jd_hash,
+      profile_hash: hashes.profile_hash,
+      summary: summaryResp.data || null,
+      attributes: rows
+    })
   } catch (e: any) {
     return NextResponse.json({ error: String(e?.message ?? e) }, { status: 500 })
   }
