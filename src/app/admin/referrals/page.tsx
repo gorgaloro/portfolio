@@ -38,6 +38,29 @@ export default function AdminReferralsPage() {
     }
   }
 
+  async function suggest(idx: number) {
+    if (!rows) return
+    const r = rows[idx]
+    setMsg('')
+    try {
+      const resp = await fetch('/api/admin/suggest-label', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ attribute: (r.label || r.attribute_name), pillar: r.pillar, max_words: 5 })
+      })
+      const j = await resp.json()
+      if (!resp.ok) throw new Error(j.error || 'Suggest failed')
+      if (j.label && typeof j.label === 'string') {
+        update(idx, { label: j.label })
+        setMsg('Suggestion applied')
+      } else {
+        setMsg('No suggestion returned')
+      }
+    } catch (e: any) {
+      setMsg(e.message || String(e))
+    }
+  }
+
   function update(idx: number, patch: Partial<AttrRow>) {
     if (!rows) return
     const copy = rows.slice()
@@ -156,6 +179,7 @@ export default function AdminReferralsPage() {
                   <td className="py-2 pr-4 space-x-2">
                     <button onClick={() => save(i)} className="rounded-md bg-zinc-900 text-white px-3 py-1 text-xs">Save</button>
                     <button onClick={() => reset(i)} className="rounded-md border border-zinc-300 px-3 py-1 text-xs">Reset</button>
+                    <button onClick={() => suggest(i)} className="rounded-md border border-emerald-600 text-emerald-700 px-3 py-1 text-xs">Suggest</button>
                     {r.has_override && <span className="text-xs text-emerald-600">overridden</span>}
                   </td>
                 </tr>
