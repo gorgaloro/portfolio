@@ -67,9 +67,17 @@ export default async function ReferralTemplatePage() {
   return (
     <Container className="mt-10 sm:mt-14">
       <div className="mt-10 space-y-12">
-        <Section title={`Roles with ${companyName || 'Company'}`}>
-          <div className="mt-2 flex justify-end">
-            <img src="/images/aw_headshot_360px.png" alt="Allen Walker" className="h-28 w-28 rounded-full ring-1 ring-zinc-900/10 object-cover" />
+        <Section title="">
+          <div className="space-y-4">
+            <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">Roles with {companyName || 'Company'}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+              <div className="md:col-span-2">
+                <div className="min-h-[120px]" />
+              </div>
+              <div className="flex md:justify-end">
+                <img src="/images/aw_headshot_360px.png" alt="Allen Walker" className="h-28 w-28 md:h-36 md:w-36 rounded-full ring-1 ring-zinc-900/10 object-cover" />
+              </div>
+            </div>
           </div>
         </Section>
         <Section title="Jobs I’m Targeting">

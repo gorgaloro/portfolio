@@ -51,7 +51,7 @@ export function ReferralReturnBar() {
         href={`/referrals/${encodeURIComponent(ctx.slug)}`}
         className="font-semibold hover:underline"
       >
-        Roles with {ctx.company || ctx.slug}
+        Back to referral
       </Link>
       <button
         aria-label="Dismiss referral context"
