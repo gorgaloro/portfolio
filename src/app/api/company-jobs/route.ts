@@ -52,7 +52,7 @@ export async function GET(req: Request) {
 
     const summaries = await supabase
       .from('job_fit_summary')
-      .select('deal_id, total_fit_percent, industry_fit_percent, process_fit_percent, technical_fit_percent, narrative, jd_hash, profile_hash')
+      .select('deal_id, total_fit_percent, industry_fit_percent, process_fit_percent, technical_fit_percent, narrative, jd_hash, profile_hash, jd_summary, jd_text')
       .in('deal_id', dealIds)
     const attrs = await supabase
       .from('job_fit_attributes')

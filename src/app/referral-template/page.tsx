@@ -48,6 +48,19 @@ export default async function ReferralTemplatePage() {
     companyName = refreshed.company?.name || companyName
   }
 
+  const missingJD = deals.filter((d: any) => d?.summary?.jd_text && !d?.summary?.jd_summary)
+  if (missingJD.length > 0) {
+    await fetch(`${baseUrl}/api/summarize-jd`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      cache: 'no-store',
+      body: JSON.stringify({ dealIds: missingJD.map((d: any) => d.deal_id) }),
+    }).catch(() => null)
+    const refreshed2 = await fetchDeals()
+    deals = refreshed2.deals
+    companyName = refreshed2.company?.name || companyName
+  }
+
   function CategoryList({ title, items }: { title: string, items: any[] }) {
     return (
       <div>
@@ -122,7 +135,12 @@ export default async function ReferralTemplatePage() {
                     </div>
                   </div>
                   <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-2">
+                    <div className="md:col-span-2 space-y-3">
+                      {s?.jd_text && !s?.jd_summary ? (
+                        <div className="text-sm text-zinc-500">Summarizing job description…</div>
+                      ) : s?.jd_summary ? (
+                        <div className="text-sm text-zinc-600 dark:text-zinc-400">{s.jd_summary}</div>
+                      ) : null}
                       <div className="text-sm text-zinc-700 dark:text-zinc-300 min-h-24 whitespace-pre-wrap">{s?.narrative || 'Analyzing…'}</div>
                     </div>
                     <div className="md:col-span-1"></div>
