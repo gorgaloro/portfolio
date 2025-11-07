@@ -125,14 +125,12 @@ export default async function ReferralTemplatePage() {
               const s = d.summary || {}
               return (
                 <div key={d.deal_id} className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-6">
-                  {/* Job Title */}
                   <div className="flex items-baseline justify-between gap-4">
                     <Link href={d.job_url || '#'} target="_blank" className="text-lg font-semibold text-emerald-600 hover:underline">
                       {d.job_title || 'Untitled Role'}
                     </Link>
                   </div>
 
-                  {/* JD Summary */}
                   <div className="mt-4">
                     <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-1">Job Description Summarized</div>
                     {s?.jd_text && !s?.jd_summary ? (
@@ -144,7 +142,6 @@ export default async function ReferralTemplatePage() {
                     )}
                   </div>
 
-                  {/* Fit Summary + Score */}
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-2">
                       <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-2">Fit Summary</div>
