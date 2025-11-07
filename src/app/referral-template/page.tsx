@@ -68,8 +68,8 @@ export default async function ReferralTemplatePage() {
         <ul className="space-y-2">
           {items.map((a) => (
             <li key={a.attribute_name} className="flex items-center gap-3 text-sm">
-              <span className={`inline-block h-3 w-3 rounded-full ${a.fit_color === 'green' ? 'bg-emerald-500' : a.fit_color === 'yellow' ? 'bg-amber-400' : 'bg-zinc-400 opacity-50'}`} />
-              <span className={a.fit_color === 'grey' ? 'text-zinc-400' : 'text-zinc-900 dark:text-zinc-100'}>{a.attribute_name}</span>
+              <span className="inline-block h-2.5 w-2.5 rounded-full bg-zinc-300" />
+              <span className="text-zinc-900 dark:text-zinc-100">{a.attribute_name}</span>
             </li>
           ))}
         </ul>
@@ -125,25 +125,39 @@ export default async function ReferralTemplatePage() {
               const s = d.summary || {}
               return (
                 <div key={d.deal_id} className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-6">
+                  {/* Job Title */}
                   <div className="flex items-baseline justify-between gap-4">
                     <Link href={d.job_url || '#'} target="_blank" className="text-lg font-semibold text-emerald-600 hover:underline">
                       {d.job_title || 'Untitled Role'}
                     </Link>
-                    <div className="shrink-0 text-right">
-                      <div className="text-xs text-zinc-500">Fit Score</div>
-                      <div className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">{s?.total_fit_percent != null ? `${Number(s.total_fit_percent).toFixed(0)}%` : '—'}</div>
-                    </div>
                   </div>
-                  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="md:col-span-2 space-y-3">
-                      {s?.jd_text && !s?.jd_summary ? (
-                        <div className="text-sm text-zinc-500">Summarizing job description…</div>
-                      ) : s?.jd_summary ? (
-                        <div className="text-sm text-zinc-600 dark:text-zinc-400">{s.jd_summary}</div>
-                      ) : null}
+
+                  {/* JD Summary */}
+                  <div className="mt-4">
+                    <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-1">Job Description Summarized</div>
+                    {s?.jd_text && !s?.jd_summary ? (
+                      <div className="text-sm text-zinc-500">Summarizing job description…</div>
+                    ) : s?.jd_summary ? (
+                      <div className="text-sm text-zinc-700 dark:text-zinc-300">{s.jd_summary}</div>
+                    ) : (
+                      <div className="text-sm text-zinc-500">No job description available.</div>
+                    )}
+                  </div>
+
+                  {/* Fit Summary + Score */}
+                  <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="md:col-span-2">
+                      <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-2">Fit Summary</div>
                       <div className="text-sm text-zinc-700 dark:text-zinc-300 min-h-24 whitespace-pre-wrap">{s?.narrative || 'Analyzing…'}</div>
                     </div>
-                    <div className="md:col-span-1"></div>
+                    <div className="md:col-span-1">
+                      <div className="h-full rounded-lg ring-1 ring-zinc-900/10 flex items-center justify-center p-4">
+                        <div className="text-center">
+                          <div className="text-xs text-zinc-500 mb-1">Fit Score</div>
+                          <div className="text-3xl md:text-4xl font-bold text-zinc-900 dark:text-zinc-100">{s?.total_fit_percent != null ? `${Number(s.total_fit_percent).toFixed(0)}%` : '—'}</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-8">
                     <CategoryList title="Industry Fit" items={byCat.industry} />

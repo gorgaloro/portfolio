@@ -50,10 +50,17 @@ export async function GET(req: Request) {
 
     const dealIds = deals.map((d: any) => d.deal_id)
 
-    const summaries = await supabase
+    let summaries = await supabase
       .from('job_fit_summary')
       .select('deal_id, total_fit_percent, industry_fit_percent, process_fit_percent, technical_fit_percent, narrative, jd_hash, profile_hash, jd_summary, jd_text')
       .in('deal_id', dealIds)
+    if (summaries.error) {
+      // Fallback for environments without jd_summary column yet
+      summaries = await supabase
+        .from('job_fit_summary')
+        .select('deal_id, total_fit_percent, industry_fit_percent, process_fit_percent, technical_fit_percent, narrative, jd_hash, profile_hash, jd_text')
+        .in('deal_id', dealIds)
+    }
     const attrs = await supabase
       .from('job_fit_attributes')
       .select('deal_id, attribute_name, category, fit_color, final_rank')
