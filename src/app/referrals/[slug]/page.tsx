@@ -3,17 +3,17 @@ export const dynamic = 'force-dynamic'
 import ReferralTemplateView from '@/components/referrals/ReferralTemplateView'
 import { ReferralContextCapture } from '@/components/referrals/ReferralContext'
 import { headers } from 'next/headers'
+import { notFound } from 'next/navigation'
 
 // Temporary mapping. Later we can fetch from DB/admin config.
-const SLUG_MAP: Record<string, { companyId: number; pipelineId: string; company?: string }> = {
-  'databricks-2025': { companyId: 193056111306, pipelineId: '1320210144', company: 'Databricks' },
-}
+const SLUG_MAP: Record<string, { companyId: number; pipelineId: string; company?: string }> = {}
 
 export default async function ReferralPage(props: any) {
   const maybeParams = props?.params
   const resolved = typeof maybeParams?.then === 'function' ? await maybeParams : maybeParams
   const slug: string = resolved?.slug
-  const m = SLUG_MAP[slug] ?? { companyId: 193056111306, pipelineId: '1320210144' }
+  const m = SLUG_MAP[slug]
+  if (!m) return notFound()
 
   async function getBaseUrl() {
     const h = await headers()
