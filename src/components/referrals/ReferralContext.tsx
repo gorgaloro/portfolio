@@ -44,24 +44,24 @@ export function ReferralReturnBar() {
   if (!ctx) return null
 
   return (
-    <div className="hidden md:flex items-center gap-3 rounded-full bg-white/90 px-3 py-2 text-sm text-zinc-800 ring-1 ring-zinc-900/5 shadow-lg dark:bg-zinc-800/90 dark:text-zinc-200 dark:ring-white/10">
-      <span className="truncate max-w-[180px]">
-        Viewing referral for {ctx.company || ctx.slug}
-      </span>
+    <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+      <span className="break-words max-w-full">Viewing referral for {ctx.company || ctx.slug}</span>
+      <span className="text-zinc-400">·</span>
       <Link
         href={`/referrals/${encodeURIComponent(ctx.slug)}`}
-        className="rounded-full bg-emerald-600 px-3 py-1 text-white text-xs hover:bg-emerald-700"
+        className="font-semibold hover:underline"
       >
         Back to referral
       </Link>
       <button
+        aria-label="Dismiss referral context"
         onClick={() => {
           try { localStorage.removeItem(STORAGE_KEY) } catch {}
           setCtx(null)
         }}
-        className="text-xs text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+        className="ml-1 text-red-600 hover:text-red-700 font-semibold"
       >
-        Dismiss
+        ×
       </button>
     </div>
   )
