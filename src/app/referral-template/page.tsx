@@ -76,8 +76,8 @@ export default async function ReferralTemplatePage() {
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
               </p>
             </div>
-            <div className="flex md:col-span-5 md:justify-end shrink-0">
-              <img src="/images/aw_headshot_360px.png" alt="Allen Walker" className="h-40 w-40 md:h-56 md:w-56 rounded-full ring-1 ring-zinc-900/10 object-cover" />
+            <div className="flex md:col-span-5 justify-center shrink-0">
+              <img src="/images/aw_headshot_360px.png" alt="Allen Walker" className="h-40 w-40 md:h-56 md:w-56 rounded-full ring-1 ring-zinc-900/10 object-cover mx-auto" />
             </div>
           </div>
         </section>
