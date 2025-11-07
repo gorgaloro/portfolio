@@ -95,9 +95,9 @@ export default async function ReferralTemplatePage() {
           </div>
         </section>
 
-        {/* Job Families I'm Targeting */}
+        {/* Targeted Job Families */}
         <section>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Job Families I’m Targeting</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Targeted Job Families</h2>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5 text-sm font-medium text-zinc-800 dark:text-zinc-100">Program Leadership</div>
             <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5 text-sm font-medium text-zinc-800 dark:text-zinc-100">Engineering Management</div>
