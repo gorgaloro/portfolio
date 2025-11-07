@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
+export const revalidate = 0
 import { Container } from '@/components/Container'
-import { Section } from '@/components/Section'
 import Link from 'next/link'
 import { headers } from 'next/headers'
 
@@ -67,25 +67,29 @@ export default async function ReferralTemplatePage() {
   return (
     <Container className="mt-10 sm:mt-14">
       <div className="mt-10 space-y-12">
-        <Section title="">
-          <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-100">Roles with {companyName || 'Company'}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-              <div className="md:col-span-2">
-                <div className="min-h-[120px]" />
-              </div>
-              <div className="flex md:justify-end">
-                <img src="/images/aw_headshot_360px.png" alt="Allen Walker" className="h-28 w-28 md:h-36 md:w-36 rounded-full ring-1 ring-zinc-900/10 object-cover" />
-              </div>
+        {/* Roles with (Company) */}
+        <section>
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Roles with {companyName || 'Company'}</h2>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+            <div className="md:col-span-2">
+              <div className="min-h-[120px]" />
+            </div>
+            <div className="flex md:justify-end">
+              <img src="/images/aw_headshot_360px.png" alt="Allen Walker" className="h-28 w-28 md:h-36 md:w-36 rounded-full ring-1 ring-zinc-900/10 object-cover" />
             </div>
           </div>
-        </Section>
-        <Section title="Jobs I’m Targeting">
-          <div className="h-0" />
-        </Section>
+        </section>
 
-        <Section title="Jobs at Company">
-          <div className="space-y-6">
+        {/* Jobs I'm Targeting */}
+        <section>
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Jobs I’m Targeting</h2>
+          <div className="mt-2 h-0" />
+        </section>
+
+        {/* Jobs at Company */}
+        <section>
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Jobs at Company</h2>
+          <div className="mt-4 space-y-6">
             {deals.length === 0 && (
               <div className="text-sm text-zinc-500">No jobs found for this company in pipeline ID “{pipelineId}”.</div>
             )}
@@ -125,11 +129,13 @@ export default async function ReferralTemplatePage() {
               )
             })}
           </div>
-        </Section>
+        </section>
 
-        <Section title="Call to Action">
-          <div className="h-0" />
-        </Section>
+        {/* Call to Action */}
+        <section>
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Call to Action</h2>
+          <div className="mt-2 h-0" />
+        </section>
       </div>
     </Container>
   )
