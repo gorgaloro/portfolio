@@ -99,10 +99,38 @@ export default async function ReferralTemplatePage() {
         <section>
           <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Targeted Job Families</h2>
           <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5 text-sm font-medium text-zinc-800 dark:text-zinc-100">Program Leadership</div>
-            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5 text-sm font-medium text-zinc-800 dark:text-zinc-100">Engineering Management</div>
-            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5 text-sm font-medium text-zinc-800 dark:text-zinc-100">Customer Enablement</div>
-            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5 text-sm font-medium text-zinc-800 dark:text-zinc-100">GTM Strategy & Execution</div>
+            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5">
+              <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-3">Program Leadership</div>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-zinc-800 dark:text-zinc-100">
+                <li>Senior Program Manager</li>
+                <li>Implementation Program Lead</li>
+                <li>Strategic Operations Manager</li>
+              </ul>
+            </div>
+            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5">
+              <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-3">Engineering Management</div>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-zinc-800 dark:text-zinc-100">
+                <li>Technical Program Manager</li>
+                <li>Engineering Operations Manager</li>
+                <li>Service Delivery Manager</li>
+              </ul>
+            </div>
+            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5">
+              <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-3">Customer Enablement</div>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-zinc-800 dark:text-zinc-100">
+                <li>Implementation Manager</li>
+                <li>Customer Success Program Manager</li>
+                <li>Partner Enablement Lead</li>
+              </ul>
+            </div>
+            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5">
+              <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-3">GTM Strategy & Execution</div>
+              <ul className="list-disc pl-5 space-y-2 text-sm text-zinc-800 dark:text-zinc-100">
+                <li>Business Operations Manager</li>
+                <li>Solutions Engineering Manager</li>
+                <li>Growth Program Manager</li>
+              </ul>
+            </div>
           </div>
         </section>
 
