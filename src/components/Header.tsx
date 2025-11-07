@@ -13,6 +13,7 @@ import {
 import clsx from 'clsx'
 
 import { Container } from '@/components/Container'
+import { ReferralReturnBar } from '@/components/referrals/ReferralContext'
 
 function CloseIcon(props: React.ComponentPropsWithoutRef<'svg'>) {
   return (
@@ -236,7 +237,10 @@ export function Header() {
             <MobileNavigation className="pointer-events-auto md:hidden" />
             <DesktopNavigation className="pointer-events-auto hidden md:block" />
           </div>
-          <div className="flex justify-end md:flex-1">
+          <div className="flex justify-end md:flex-1 items-center gap-3">
+            <div className="pointer-events-auto hidden md:block">
+              <ReferralReturnBar />
+            </div>
             <div className="pointer-events-auto">
               <ThemeToggle />
             </div>
