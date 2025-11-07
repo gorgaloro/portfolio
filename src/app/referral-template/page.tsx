@@ -68,7 +68,7 @@ export default async function ReferralTemplatePage() {
         <ul className="space-y-2">
           {items.map((a) => (
             <li key={a.attribute_name} className="flex items-center gap-3 text-sm">
-              <span className="inline-block h-2.5 w-2.5 rounded-full bg-zinc-300" />
+              <span className={`inline-block h-3 w-3 rounded-full ${a.fit_color === 'green' ? 'bg-emerald-500' : a.fit_color === 'yellow' ? 'bg-amber-400' : 'bg-zinc-400 opacity-50'}`} />
               <span className="text-zinc-900 dark:text-zinc-100">{a.attribute_name}</span>
             </li>
           ))}
