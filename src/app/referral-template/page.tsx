@@ -71,7 +71,7 @@ export default async function ReferralTemplatePage() {
         <section>
           <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Roles with {companyName || 'Company'}</h2>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-            <div className="md:col-span-7">
+            <div className="md:col-span-7 self-start">
               <p className="text-zinc-700 dark:text-zinc-300">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
               </p>
@@ -82,10 +82,15 @@ export default async function ReferralTemplatePage() {
           </div>
         </section>
 
-        {/* Jobs I'm Targeting */}
+        {/* Job Families I'm Targeting */}
         <section>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Jobs I’m Targeting</h2>
-          <div className="mt-2 h-0" />
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Job Families I’m Targeting</h2>
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5 text-sm font-medium text-zinc-800 dark:text-zinc-100">Program Leadership</div>
+            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5 text-sm font-medium text-zinc-800 dark:text-zinc-100">Engineering Management</div>
+            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5 text-sm font-medium text-zinc-800 dark:text-zinc-100">Customer Enablement</div>
+            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5 text-sm font-medium text-zinc-800 dark:text-zinc-100">GTM Strategy & Execution</div>
+          </div>
         </section>
 
         {/* Jobs at Company */}
