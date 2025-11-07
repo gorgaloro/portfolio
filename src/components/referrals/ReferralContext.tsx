@@ -45,13 +45,13 @@ export function ReferralReturnBar() {
 
   return (
     <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
-      <span className="break-words max-w-full">Viewing referral for {ctx.company || ctx.slug}</span>
+      <span className="break-words max-w-full">A personalized look at my fit for opportunities at {ctx.company || ctx.slug}</span>
       <span className="text-zinc-400">·</span>
       <Link
         href={`/referrals/${encodeURIComponent(ctx.slug)}`}
         className="font-semibold hover:underline"
       >
-        Back to referral
+        Roles with {ctx.company || ctx.slug}
       </Link>
       <button
         aria-label="Dismiss referral context"

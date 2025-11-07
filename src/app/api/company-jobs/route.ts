@@ -22,7 +22,15 @@ export async function GET(req: Request) {
     const links = await supabase.from('hubspot_deal_companies').select('deal_id').eq('company_id', companyId)
     if (links.error) return NextResponse.json({ error: links.error.message }, { status: 500 })
     const ids = (links.data || []).map((r: any) => r.deal_id)
-    if (!ids.length) return NextResponse.json({ deals: [] })
+    if (!ids.length) {
+      // Attempt to return company name even if there are no deals
+      let companyName: string | null = null
+      try {
+        const comp = await supabase.from('hubspot_companies').select('name').eq('company_id', companyId).limit(1)
+        companyName = comp.data?.[0]?.name ?? null
+      } catch {}
+      return NextResponse.json({ company: companyName ? { id: companyId, name: companyName } : undefined, deals: [] })
+    }
 
     let query = supabase
       .from('hubspot_deals')
@@ -98,7 +106,14 @@ export async function GET(req: Request) {
       }
     })
 
-    return NextResponse.json({ deals: result })
+    // Include company name if available (best-effort)
+    let companyName: string | null = null
+    try {
+      const comp = await supabase.from('hubspot_companies').select('name').eq('company_id', companyId).limit(1)
+      companyName = comp.data?.[0]?.name ?? null
+    } catch {}
+
+    return NextResponse.json({ company: companyName ? { id: companyId, name: companyName } : undefined, deals: result })
   } catch (e: any) {
     return NextResponse.json({ error: String(e?.message ?? e) }, { status: 500 })
   }

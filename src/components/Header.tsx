@@ -243,7 +243,7 @@ export function Header() {
             </div>
           </div>
         </div>
-        <div className="mt-3 hidden md:flex justify-center">
+        <div className="mt-3 flex justify-center px-3 md:px-0">
           <ReferralReturnBar />
         </div>
       </Container>
