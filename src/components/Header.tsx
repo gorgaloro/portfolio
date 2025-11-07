@@ -238,13 +238,13 @@ export function Header() {
             <DesktopNavigation className="pointer-events-auto hidden md:block" />
           </div>
           <div className="flex justify-end md:flex-1 items-center gap-3">
-            <div className="pointer-events-auto hidden md:block">
-              <ReferralReturnBar />
-            </div>
             <div className="pointer-events-auto">
               <ThemeToggle />
             </div>
           </div>
+        </div>
+        <div className="mt-3 hidden md:flex justify-center">
+          <ReferralReturnBar />
         </div>
       </Container>
     </header>
