@@ -70,7 +70,7 @@ export default async function ReferralTemplatePage() {
         {/* Roles with (Company) */}
         <section>
           <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Roles with {companyName || 'Company'}</h2>
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
             <div className="md:col-span-7">
               <p className="text-zinc-700 dark:text-zinc-300">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
