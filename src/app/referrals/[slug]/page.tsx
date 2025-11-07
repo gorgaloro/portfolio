@@ -3,15 +3,15 @@ export const dynamic = 'force-dynamic'
 import ReferralTemplateView from '@/components/referrals/ReferralTemplateView'
 import { ReferralContextCapture } from '@/components/referrals/ReferralContext'
 
-type Params = { params: { slug: string } }
-
 // Temporary mapping. Later we can fetch from DB/admin config.
 const SLUG_MAP: Record<string, { companyId: number; pipelineId: string; company?: string }> = {
   'databricks-2025': { companyId: 193056111306, pipelineId: '1320210144', company: 'Databricks' },
 }
 
-export default async function ReferralPage({ params }: Params) {
-  const slug = params.slug
+export default async function ReferralPage(props: any) {
+  const maybeParams = props?.params
+  const resolved = typeof maybeParams?.then === 'function' ? await maybeParams : maybeParams
+  const slug: string = resolved?.slug
   const m = SLUG_MAP[slug] ?? { companyId: 193056111306, pipelineId: '1320210144' }
 
   return (
