@@ -15,11 +15,13 @@ export default async function ReferralTemplateView({ companyId, pipelineId }: { 
 
   async function fetchDeals() {
     const r = await fetch(`${baseUrl}/api/company-jobs?companyId=${companyId}&pipelineId=${encodeURIComponent(pipelineId)}`, { cache: 'no-store' })
-    if (!r.ok) return { deals: [] as any[] }
-    return r.json() as Promise<{ deals: any[] }>
+    if (!r.ok) return { deals: [] as any[], company: undefined as any }
+    return r.json() as Promise<{ deals: any[]; company?: { id: number; name: string } }>
   }
 
-  let { deals } = await fetchDeals()
+  const first = await fetchDeals()
+  let { deals } = first
+  let companyName: string | undefined = first.company?.name
   const missing = deals.filter((d) => !d.summary)
   const needRecompute = deals.some((d) => d.summary && Number(d.summary.total_fit_percent ?? 0) <= 0)
   if (missing.length > 0 || needRecompute) {
@@ -35,6 +37,7 @@ export default async function ReferralTemplateView({ companyId, pipelineId }: { 
     }).catch(() => null)
     const refreshed = await fetchDeals()
     deals = refreshed.deals
+    companyName = refreshed.company?.name || companyName
   }
 
   function CategoryList({ title, items }: { title: string; items: any[] }) {
@@ -66,6 +69,9 @@ export default async function ReferralTemplateView({ companyId, pipelineId }: { 
   return (
     <Container className="mt-10 sm:mt-14">
       <div className="mt-10 space-y-12">
+        <Section title={`Roles with ${companyName || 'Company'}`}>
+          <div className="h-0" />
+        </Section>
         <Section title="Jobs I’m Targeting">
           <div className="h-0" />
         </Section>
