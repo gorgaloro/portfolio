@@ -81,7 +81,7 @@ export default async function ReferralTemplatePage() {
   return (
     <Container className="mt-10 sm:mt-14">
       <div className="mt-10 space-y-12">
-        <ReferralContextCapture slug="referral-template" company={companyName} />
+        <ReferralContextCapture slug="referral-template" company={companyName} showBackLink={false} onlyIfEmpty />
         {/* Roles with (Company) */}
         <section>
           <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Roles with {companyName || 'Company'}</h2>
