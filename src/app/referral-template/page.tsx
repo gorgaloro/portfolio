@@ -3,6 +3,7 @@ export const revalidate = 0
 import { Container } from '@/components/Container'
 import Link from 'next/link'
 import { headers } from 'next/headers'
+import { ReferralContextCapture } from '@/components/referrals/ReferralContext'
 
 export const metadata = {
   title: 'Referral Template',
@@ -80,6 +81,7 @@ export default async function ReferralTemplatePage() {
   return (
     <Container className="mt-10 sm:mt-14">
       <div className="mt-10 space-y-12">
+        <ReferralContextCapture slug="referral-template" company={companyName} />
         {/* Roles with (Company) */}
         <section>
           <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Roles with {companyName || 'Company'}</h2>

@@ -41,6 +41,27 @@ export function ReferralReturnBar() {
     } catch {}
   }, [])
 
+  // Retry shortly after mount in case another component sets the context just after first paint
+  useEffect(() => {
+    if (ctx) return
+    let tries = 0
+    const id = setInterval(() => {
+      tries += 1
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY)
+        if (raw) {
+          const parsed: Ctx = JSON.parse(raw)
+          if (parsed?.slug && (!parsed.exp || parsed.exp > Date.now())) {
+            setCtx(parsed)
+            clearInterval(id)
+          }
+        }
+      } catch {}
+      if (tries >= 5) clearInterval(id)
+    }, 300)
+    return () => clearInterval(id)
+  }, [ctx])
+
   if (!ctx) return null
 
   return (
