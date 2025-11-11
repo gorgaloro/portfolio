@@ -4,6 +4,7 @@ import { Container } from '@/components/Container'
 import Link from 'next/link'
 import { headers } from 'next/headers'
 import { ReferralContextCapture } from '@/components/referrals/ReferralContext'
+import { Target, Briefcase, Users, TrendingUp } from 'lucide-react'
 
 export const metadata = {
   title: 'Referral Template',
@@ -78,6 +79,91 @@ export default async function ReferralTemplatePage() {
     )
   }
 
+  function JobFamiliesGrid() {
+    const jobFamilies = [
+      {
+        title: 'Program Leadership',
+        icon: Target,
+        color: 'from-[#8B0000] to-[#A40000]',
+        borderColor: 'border-red-200',
+        accentColor: 'bg-[#8B0000]',
+        roles: [
+          'Senior Program Manager',
+          'Implementation Program Lead',
+          'Strategic Operations Manager',
+        ],
+      },
+      {
+        title: 'Engineering Management',
+        icon: Briefcase,
+        color: 'from-[#2C3E50] to-[#34495E]',
+        borderColor: 'border-slate-300',
+        accentColor: 'bg-[#2C3E50]',
+        roles: [
+          'Technical Program Manager',
+          'Engineering Operations Manager',
+          'Service Delivery Manager',
+        ],
+      },
+      {
+        title: 'Customer Enablement',
+        icon: Users,
+        color: 'from-[#17A2B8] to-[#20B2AA]',
+        borderColor: 'border-teal-200',
+        accentColor: 'bg-[#17A2B8]',
+        roles: [
+          'Implementation Manager',
+          'Customer Success Program Manager',
+          'Partner Enablement Lead',
+        ],
+      },
+      {
+        title: 'GTM Strategy & Execution',
+        icon: TrendingUp,
+        color: 'from-[#5B4D9D] to-[#6B5BAD]',
+        borderColor: 'border-purple-200',
+        accentColor: 'bg-[#5B4D9D]',
+        roles: [
+          'Business Operations Manager',
+          'Solutions Engineering Manager',
+          'Growth Program Manager',
+        ],
+      },
+    ]
+
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {jobFamilies.map((family) => {
+          const Icon = family.icon
+          return (
+            <div
+              key={family.title}
+              className={`group relative border-2 ${family.borderColor} rounded-lg overflow-hidden hover:shadow-lg transition-all`}
+            >
+              <div className={`h-1 w-full bg-gradient-to-r ${family.color}`}></div>
+              <div className="p-5">
+                <div className="flex items-start gap-3 mb-4">
+                  <div className={`p-2 rounded-lg bg-gradient-to-br ${family.color} group-hover:scale-110 transition-transform`}>
+                    <Icon className="w-5 h-5 text-white" />
+                  </div>
+                  <h3 className="flex-1 leading-snug text-sm font-medium text-zinc-900 dark:text-zinc-100">{family.title}</h3>
+                </div>
+                <ul className="space-y-2.5">
+                  {family.roles.map((role: string) => (
+                    <li key={role} className="flex items-start gap-2 text-slate-700 dark:text-zinc-300">
+                      <div className={`w-1.5 h-1.5 rounded-full ${family.accentColor} mt-2 flex-shrink-0`}></div>
+                      <span className="text-xs leading-relaxed">{role}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
   return (
     <Container className="mt-10 sm:mt-14">
       <div className="mt-10 space-y-12">
@@ -100,39 +186,8 @@ export default async function ReferralTemplatePage() {
         {/* Targeted Job Families */}
         <section>
           <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Targeted Job Families</h2>
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5">
-              <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-3">Program Leadership</div>
-              <ul className="list-disc pl-5 space-y-2 text-xs text-zinc-800 dark:text-zinc-100">
-                <li>Senior Program Manager</li>
-                <li>Implementation Program Lead</li>
-                <li>Strategic Operations Manager</li>
-              </ul>
-            </div>
-            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5">
-              <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-3">Engineering Management</div>
-              <ul className="list-disc pl-5 space-y-2 text-xs text-zinc-800 dark:text-zinc-100">
-                <li>Technical Program Manager</li>
-                <li>Engineering Operations Manager</li>
-                <li>Service Delivery Manager</li>
-              </ul>
-            </div>
-            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5">
-              <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-3">Customer Enablement</div>
-              <ul className="list-disc pl-5 space-y-2 text-xs text-zinc-800 dark:text-zinc-100">
-                <li>Implementation Manager</li>
-                <li>Customer Success Program Manager</li>
-                <li>Partner Enablement Lead</li>
-              </ul>
-            </div>
-            <div className="rounded-xl ring-1 ring-zinc-900/5 bg-white dark:bg-zinc-900 p-5">
-              <div className="text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-3">GTM Strategy & Execution</div>
-              <ul className="list-disc pl-5 space-y-2 text-xs text-zinc-800 dark:text-zinc-100">
-                <li>Business Operations Manager</li>
-                <li>Solutions Engineering Manager</li>
-                <li>Growth Program Manager</li>
-              </ul>
-            </div>
+          <div className="mt-4">
+            <JobFamiliesGrid />
           </div>
         </section>
 
