@@ -165,19 +165,19 @@ export default async function ReferralTemplatePage() {
                   )}
                   {family.title === 'Engineering Management' && (
                     <span className="text-xs text-zinc-600 dark:text-zinc-300 italic">
-                      find how how I support{' '}
+                      Find out how I support{' '}
                       <Link href="/tech-stack" className="font-medium text-emerald-600 hover:underline">technical teams</Link>.
                     </span>
                   )}
                   {family.title === 'Customer Enablement' && (
                     <span className="text-xs text-zinc-600 dark:text-zinc-300 italic">
-                      find out how I support{' '}
+                      Find out how I support{' '}
                       <Link href="/business-development" className="font-medium text-emerald-600 hover:underline">customer success</Link>.
                     </span>
                   )}
                   {family.title === 'GTM Strategy & Execution' && (
                     <span className="text-xs text-zinc-600 dark:text-zinc-300 italic">
-                      Find how how I support <Link href="/business-development" className="font-medium text-emerald-600 hover:underline">Growth</Link> and <Link href="/board-advisory" className="font-medium text-emerald-600 hover:underline">Startups</Link>.
+                      Find out how I support <Link href="/business-development" className="font-medium text-emerald-600 hover:underline">Growth</Link> and <Link href="/board-advisory" className="font-medium text-emerald-600 hover:underline">Startups</Link>.
                     </span>
                   )}
                 </div>
