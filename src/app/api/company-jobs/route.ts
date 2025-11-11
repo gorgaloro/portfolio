@@ -32,9 +32,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ company: companyName ? { id: companyId, name: companyName } : undefined, deals: [] })
     }
 
+    // Try selecting dealstage; if it fails (column missing), fall back without it
     let query = supabase
       .from('hubspot_deals')
-      .select('deal_id, dealname, job_title, job_url, pipeline, hs_lastmodifieddate')
+      .select('deal_id, dealname, job_title, job_url, pipeline, dealstage, hs_lastmodifieddate')
       .in('deal_id', ids)
 
     if (pipelineId) {
@@ -42,10 +43,20 @@ export async function GET(req: Request) {
     } else if (pipeline) {
       query = query.eq('pipeline', pipeline)
     }
-
-    const dealsResp = await query.order('hs_lastmodifieddate', { ascending: false })
-    if (dealsResp.error) return NextResponse.json({ error: dealsResp.error.message }, { status: 500 })
-    const deals = dealsResp.data || []
+    let dealsResp = await query.order('hs_lastmodifieddate', { ascending: false })
+    let deals = dealsResp.data || []
+    if (dealsResp.error) {
+      // Fall back to query without dealstage
+      let q2 = supabase
+        .from('hubspot_deals')
+        .select('deal_id, dealname, job_title, job_url, pipeline, hs_lastmodifieddate')
+        .in('deal_id', ids)
+      if (pipelineId) q2 = q2.eq('pipeline', pipelineId)
+      else if (pipeline) q2 = q2.eq('pipeline', pipeline)
+      const fb = await q2.order('hs_lastmodifieddate', { ascending: false })
+      if (fb.error) return NextResponse.json({ error: fb.error.message }, { status: 500 })
+      deals = fb.data || []
+    }
     if (!deals.length) return NextResponse.json({ deals: [] })
 
     const dealIds = deals.map((d: any) => d.deal_id)
