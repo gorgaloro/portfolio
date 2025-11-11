@@ -100,9 +100,9 @@ export default async function ReferralTemplatePage() {
         borderColor: 'border-slate-300',
         accentColor: 'bg-[#2C3E50]',
         roles: [
-          'Technical Program Manager',
-          'Engineering Operations Manager',
-          'Service Delivery Manager',
+          'Application Manager',
+          'Solution Architect',
+          'Support Manager',
         ],
       },
       {
