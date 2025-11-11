@@ -19,6 +19,12 @@ export default async function ReferralTemplatePage() {
     return `${proto}://${host}`
   }
 
+  async function fetchIntro() {
+    const r = await fetch(`${baseUrl}/api/company-intro?companyId=${companyId}`, { cache: 'no-store' })
+    if (!r.ok) return null
+    try { const j = await r.json(); return j.intro || null } catch { return null }
+  }
+
   const baseUrl = await getBaseUrl()
   const companyId = 193056111306
   const pipelineId = '1320210144'
@@ -62,6 +68,8 @@ export default async function ReferralTemplatePage() {
     deals = refreshed2.deals
     companyName = refreshed2.company?.name || companyName
   }
+
+  const intro = await fetchIntro()
 
   function CategoryList({ title, items }: { title: string, items: any[] }) {
     return (
@@ -198,9 +206,9 @@ export default async function ReferralTemplatePage() {
           <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Roles with {companyName || 'Company'}</h2>
           <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
             <div className="md:col-span-7 self-start">
-              <p className="text-zinc-700 dark:text-zinc-300">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </p>
+              <div className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
+                {intro?.message || 'This page gives a concise view of how my background aligns with roles at this company. Below you will find a brief fit summary for each role, along with the key industry, process, and technical attributes that map to my experience.'}
+              </div>
             </div>
             <div className="flex md:col-span-5 justify-center shrink-0">
               <img src="/images/aw_headshot_360px.png" alt="Allen Walker" className="h-40 w-40 md:h-56 md:w-56 rounded-full ring-1 ring-zinc-900/10 object-cover mx-auto" />
