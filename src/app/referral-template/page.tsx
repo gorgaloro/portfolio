@@ -124,9 +124,9 @@ export default async function ReferralTemplatePage() {
         borderColor: 'border-purple-200',
         accentColor: 'bg-[#5B4D9D]',
         roles: [
-          'Business Operations Manager',
-          'Solutions Engineering Manager',
-          'Growth Program Manager',
+          'Operations Manager',
+          'Sales Engineer',
+          'Revenue Systems Manager',
         ],
       },
     ]
