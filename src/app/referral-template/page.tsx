@@ -112,9 +112,9 @@ export default async function ReferralTemplatePage() {
         borderColor: 'border-teal-200',
         accentColor: 'bg-[#17A2B8]',
         roles: [
-          'Implementation Manager',
-          'Customer Success Program Manager',
-          'Partner Enablement Lead',
+          'Customer Success Director',
+          'Engagement Manager',
+          'Customer Growth Manager',
         ],
       },
       {
