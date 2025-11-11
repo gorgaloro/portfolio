@@ -156,6 +156,12 @@ export default async function ReferralTemplatePage() {
                     </li>
                   ))}
                 </ul>
+                <div className="mt-4 pt-3 border-t border-zinc-100 dark:border-white/10">
+                  <span className="text-xs text-zinc-600 dark:text-zinc-300">
+                    Find out how I support{' '}
+                    <Link href="/program-delivery" className="font-medium text-emerald-600 hover:underline">program delivery</Link>.
+                  </span>
+                </div>
               </div>
             </div>
           )
