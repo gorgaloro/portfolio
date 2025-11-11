@@ -88,9 +88,9 @@ export default async function ReferralTemplatePage() {
         borderColor: 'border-red-200',
         accentColor: 'bg-[#8B0000]',
         roles: [
-          'Senior Program Manager',
-          'Implementation Program Lead',
-          'Strategic Operations Manager',
+          'Project Director',
+          'Program Manager',
+          'Delivery Manager',
         ],
       },
       {
