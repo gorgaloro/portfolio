@@ -24,6 +24,13 @@ export default function AdminReferralsPage() {
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState<string>('')
 
+  const [companyId, setCompanyId] = useState<string>('')
+  const [companyName, setCompanyName] = useState<string>('')
+  const [referrerName, setReferrerName] = useState<string>('')
+  const [warmIntro, setWarmIntro] = useState<string>('')
+  const [warmLoading, setWarmLoading] = useState(false)
+  const [warmMsg, setWarmMsg] = useState<string>('')
+
   async function load() {
     setMsg('')
     setLoading(true)
@@ -119,9 +126,104 @@ export default function AdminReferralsPage() {
     }
   }
 
+  // Warm Intro helpers (Step 2)
+  async function warmLoad() {
+    setWarmMsg('')
+    setWarmLoading(true)
+    try {
+      const r = await fetch(`/api/admin/warm-intro?companyId=${encodeURIComponent(companyId)}`, { cache: 'no-store' })
+      const j = await r.json()
+      if (!r.ok) throw new Error(j.error || 'Failed to load')
+      const intro = j.intro || null
+      setWarmIntro(intro?.message || '')
+      if (intro?.company_name) setCompanyName(intro.company_name)
+      setWarmMsg(intro ? 'Loaded' : 'No existing intro')
+    } catch (e: any) {
+      setWarmMsg(e.message || String(e))
+    } finally {
+      setWarmLoading(false)
+    }
+  }
+
+  async function warmGenerate(regenerate = false) {
+    if (!companyId) return
+    setWarmMsg('')
+    setWarmLoading(true)
+    try {
+      const resp = await fetch('/api/admin/warm-intro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyId: Number(companyId),
+          companyName: companyName || undefined,
+          referrerName: referrerName || undefined,
+          regenerate,
+        })
+      })
+      const j = await resp.json()
+      if (!resp.ok) throw new Error(j.error || 'Generate failed')
+      const intro = j.intro || null
+      setWarmIntro(intro?.message || '')
+      if (intro?.company_name) setCompanyName(intro.company_name)
+      setWarmMsg('Generated')
+    } catch (e: any) {
+      setWarmMsg(e.message || String(e))
+    } finally {
+      setWarmLoading(false)
+    }
+  }
+
+  async function warmSave() {
+    if (!companyId) return
+    setWarmMsg('')
+    setWarmLoading(true)
+    try {
+      const resp = await fetch('/api/admin/warm-intro', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          companyId: Number(companyId),
+          companyName: companyName || undefined,
+          message: warmIntro,
+          saveOnly: true,
+        })
+      })
+      const j = await resp.json()
+      if (!resp.ok) throw new Error(j.error || 'Save failed')
+      setWarmMsg('Saved')
+    } catch (e: any) {
+      setWarmMsg(e.message || String(e))
+    } finally {
+      setWarmLoading(false)
+    }
+  }
+
   return (
     <AdminShell title="Referrals" current="Referrals">
       <div className="space-y-6">
+        <h1 className="text-2xl font-semibold">Admin: Warm Intro</h1>
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="md:col-span-3">
+            <label className="block text-sm text-zinc-600">Company ID</label>
+            <input value={companyId} onChange={(e) => setCompanyId(e.target.value)} placeholder="193056111306" className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
+          </div>
+          <div className="md:col-span-3">
+            <label className="block text-sm text-zinc-600">Company Name (optional)</label>
+            <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
+          </div>
+          <div className="md:col-span-3">
+            <label className="block text-sm text-zinc-600">Referrer Name (optional)</label>
+            <input value={referrerName} onChange={(e) => setReferrerName(e.target.value)} className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
+          </div>
+          <div className="md:col-span-3 flex items-end gap-2">
+            <button onClick={warmLoad} disabled={!companyId || warmLoading} className="rounded-md border border-zinc-300 px-3 py-2 text-sm">Load</button>
+            <button onClick={() => warmGenerate(false)} disabled={!companyId || warmLoading} className="rounded-md bg-emerald-600 text-white px-3 py-2 text-sm">{warmLoading ? 'Working…' : 'Generate'}</button>
+            <button onClick={warmSave} disabled={!companyId || warmLoading} className="rounded-md bg-zinc-900 text-white px-3 py-2 text-sm">Save</button>
+          </div>
+        </div>
+        {warmMsg && <div className="text-sm text-zinc-500">{warmMsg}</div>}
+        <textarea value={warmIntro} onChange={(e) => setWarmIntro(e.target.value)} rows={6} placeholder="Generated two-paragraph intro will appear here" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
+
         <h1 className="text-2xl font-semibold">Admin: Referral Attributes</h1>
         <div className="flex items-end gap-3">
           <div>
