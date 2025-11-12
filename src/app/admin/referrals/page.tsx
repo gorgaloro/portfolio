@@ -283,13 +283,15 @@ export default function AdminReferralsPage() {
     if (ids.length === 0) { setEnrichMsg('Select at least one job'); return }
     setEnriching(true)
     try {
-      const resp = await fetch('/api/admin/enrich-jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dealIds: ids, options: enrichOpts, preview: !saveToDb, debug: debugMode }) })
+      // Run Prompts 1–4 orchestrator, then load attributes for the processed deals
+      const resp = await fetch('/api/admin/attr-orchestrate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dealIds: ids }) })
       const j = await resp.json()
-      if (!resp.ok) throw new Error(j.error || 'Enrichment failed')
-      const base = (j.results || []) as any[]
+      if (!resp.ok) throw new Error(j.error || 'Orchestration failed')
+      const processed = Array.isArray(j.processed) ? j.processed : []
+      const base = processed.map((p: any) => ({ deal_id: Number(p.deal_id) }))
       setEnrichResults(base)
       await loadAttributesForResults(base)
-      setEnrichMsg(`Enriched ${Array.isArray(j.results) ? j.results.length : 0} job(s)`) 
+      setEnrichMsg(`Ran Prompts 1–4 for ${base.length} job(s)`) 
     } catch (e: any) {
       setEnrichMsg(e.message || String(e))
     } finally {

@@ -15,6 +15,12 @@ function sha256Hex(s: string) {
   return crypto.createHash('sha256').update(String(s || ''), 'utf8').digest('hex')
 }
 
+function paretoWeight(rank: number) {
+  const w = 100 * Math.pow(0.6, Math.max(0, (rank || 1) - 1))
+  return Math.max(1, Math.round(w))
+}
+function multForColor(c: string): number { if (c === 'green') return 1; if (c === 'yellow') return 0.65; return 0 }
+
 async function callOpenAI(system: string, user: string) {
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) throw new Error('Missing OPENAI_API_KEY')
@@ -40,7 +46,6 @@ async function callOpenAI(system: string, user: string) {
 }
 
 const allowedCategories = new Set(['Skill','Tool','Experience','Trait','Qualification','Knowledge Area'])
-
 const fitAllowed = new Set(['Industry Fit','Process Fit','Technical Fit'])
 function normalizeFitCategory(s: string): 'Industry Fit'|'Process Fit'|'Technical Fit' {
   const v = String(s || '').toLowerCase()
@@ -140,6 +145,11 @@ async function runPrompt3Refinement(supabase: ReturnType<typeof createClient>, d
 
   await supabase.from('jd_attribute_refined').delete().eq('deal_id', dealId)
 
+  function limitWords(s: string, maxWords = 5): string {
+    const words = String(s || '').trim().split(/\s+/)
+    return words.slice(0, maxWords).join(' ')
+  }
+
   const rows = top.map((x: any) => ({
     deal_id: dealId,
     job_title,
@@ -148,7 +158,7 @@ async function runPrompt3Refinement(supabase: ReturnType<typeof createClient>, d
     model_version: ai.model,
     rank: Number(x.rank),
     original_attribute: String(x.original_attribute || x.attribute),
-    refined_attribute: String(x.refined_attribute),
+    refined_attribute: limitWords(String(x.refined_attribute)),
     fit_category: String(x.fit_category),
     rationale: x.rationale ? String(x.rationale) : null,
   }))
@@ -214,14 +224,75 @@ async function runPrompt4Relevance(supabase: ReturnType<typeof createClient>, de
   return { role_ranked: cleanRows.length }
 }
 
-async function runForDeal(dealId: number) {
+async function mapPromptsToJobFitAttributes(supabase: ReturnType<typeof createClient>, dealId: number) {
+  // Load refined (Prompt 3) and role relevance (Prompt 4)
+  const refined = await supabase
+    .from('jd_attribute_refined')
+    .select('rank, refined_attribute, fit_category')
+    .eq('deal_id', dealId)
+    .order('rank', { ascending: true })
+  if (refined.error) throw new Error(refined.error.message)
+  const refItems = refined.data || []
+
+  const role = await supabase
+    .from('jd_attribute_role_relevance')
+    .select('rank, refined_attribute')
+    .eq('deal_id', dealId)
+  if (role.error) throw new Error(role.error.message)
+  const roleItems = role.data || []
+
+  const titleRankByLabel = new Map<string, number>()
+  for (const r of roleItems) titleRankByLabel.set(String(r.refined_attribute).toLowerCase(), Number(r.rank))
+
+  // Build items with jd_rank from refined.rank and title_rank from role relevance by matching label
+  const tmp: Array<{ label: string, pillar: 'industry'|'process'|'technical', jd_rank: number, title_rank: number }> = []
+  for (const it of refItems) {
+    const label = String(it.refined_attribute || '').trim()
+    if (!label) continue
+    const key = label.toLowerCase()
+    const jd_rank = Number(it.rank)
+    const fitCat = String(it.fit_category || '').toLowerCase()
+    const pillar: 'industry'|'process'|'technical' = fitCat.includes('industry') ? 'industry' : (fitCat.includes('process') ? 'process' : 'technical')
+    const title_rank = Number(titleRankByLabel.get(key) || jd_rank)
+    tmp.push({ label, pillar, jd_rank, title_rank })
+  }
+
+  // Sort primarily by title_rank, then jd_rank, and assign sequential final_rank
+  tmp.sort((a, b) => (a.title_rank - b.title_rank) || (a.jd_rank - b.jd_rank) || a.label.localeCompare(b.label))
+  const finalList = tmp.map((t, i) => ({ ...t, final_rank: i + 1 }))
+
+  // Persist to job_fit_attributes
+  await supabase.from('job_fit_attributes').delete().eq('deal_id', dealId)
+  const rows = finalList.map((t) => {
+    const weight = paretoWeight(t.final_rank)
+    const fit_color: 'green'|'yellow'|'grey' = 'grey'
+    const fit_multiplier = multForColor(fit_color)
+    const weighted_score = Math.round(weight * fit_multiplier)
+    return {
+      deal_id: dealId,
+      attribute_name: t.label,
+      category: t.pillar,
+      jd_rank: t.jd_rank,
+      title_rank: t.title_rank,
+      final_rank: t.final_rank,
+      weight,
+      fit_color,
+      fit_multiplier,
+      weighted_score,
+    }
+  })
+  if (rows.length) await supabase.from('job_fit_attributes').insert(rows)
+  return { attributes_upserted: rows.length }
+}
+
+async function processDeal(dealId: number) {
   const supabase = getClient()
   const deal = await supabase
     .from('hubspot_deals')
     .select('deal_id, job_title, submission_notes')
     .eq('deal_id', dealId)
     .maybeSingle()
-  if (deal.error || !deal.data) return NextResponse.json({ error: deal.error?.message || 'Deal not found' }, { status: 404 })
+  if (deal.error || !deal.data) return { deal_id: dealId, error: deal.error?.message || 'Deal not found' }
 
   const js = await supabase
     .from('job_fit_summary')
@@ -231,7 +302,7 @@ async function runForDeal(dealId: number) {
 
   const job_title = deal.data.job_title || ''
   const job_description = (js.data?.jd_text || deal.data.submission_notes || '').toString()
-  if (!job_description || job_description.trim().length < 40) return NextResponse.json({ error: 'No job description text available' }, { status: 400 })
+  if (!job_description || job_description.trim().length < 40) return { deal_id: dealId, error: 'No job description text available' }
 
   const system = [
     'You are an experienced technical recruiter and hiring manager specializing in mid-to-senior roles.',
@@ -245,7 +316,6 @@ async function runForDeal(dealId: number) {
   ].join(' ')
 
   const user = JSON.stringify({ job_title, job_description })
-
   const ai = await callOpenAI(system, user)
   const arr = Array.isArray(ai.data) ? ai.data : []
   const top = arr
@@ -254,7 +324,8 @@ async function runForDeal(dealId: number) {
 
   const jd_hash = sha256Hex(job_description)
 
-  const rows = top.map((x: any) => ({
+  await supabase.from('jd_attribute_ranking').delete().eq('deal_id', dealId)
+  const rankRows = top.map((x: any) => ({
     deal_id: dealId,
     job_title,
     jd_hash,
@@ -265,41 +336,33 @@ async function runForDeal(dealId: number) {
     category: allowedCategories.has(String(x.category)) ? String(x.category) : 'Skill',
     rationale: x.rationale ? String(x.rationale) : null
   }))
+  if (rankRows.length) await supabase.from('jd_attribute_ranking').insert(rankRows)
 
-  await supabase.from('jd_attribute_ranking').delete().eq('deal_id', dealId)
-  if (rows.length) await supabase.from('jd_attribute_ranking').insert(rows)
+  let p2 = { categorized: 0 } as any
+  try { p2 = await runPrompt2Categorization(supabase, dealId) } catch (e: any) { p2 = { categorized: 0, error: String(e?.message ?? e) } }
+  let p3 = { refined: 0 } as any
+  try { p3 = await runPrompt3Refinement(supabase, dealId) } catch (e: any) { p3 = { refined: 0, error: String(e?.message ?? e) } }
+  let p4 = { role_ranked: 0 } as any
+  try { p4 = await runPrompt4Relevance(supabase, dealId) } catch (e: any) { p4 = { role_ranked: 0, error: String(e?.message ?? e) } }
+  let mapped = { attributes_upserted: 0 } as any
+  try { mapped = await mapPromptsToJobFitAttributes(supabase, dealId) } catch (e: any) { mapped = { attributes_upserted: 0, error: String(e?.message ?? e) } }
 
-  let cat = { categorized: 0 }
-  try {
-    cat = await runPrompt2Categorization(supabase, dealId)
-  } catch (e: any) {
-    // swallow classification error but report counts
-    cat = { categorized: 0, error: String(e?.message ?? e) } as any
-  }
-
-  let ref = { refined: 0 }
-  try {
-    ref = await runPrompt3Refinement(supabase, dealId)
-  } catch (e: any) {
-    ref = { refined: 0, error: String(e?.message ?? e) } as any
-  }
-
-  let roleRel = { role_ranked: 0 }
-  try {
-    roleRel = await runPrompt4Relevance(supabase, dealId)
-  } catch (e: any) {
-    roleRel = { role_ranked: 0, error: String(e?.message ?? e) } as any
-  }
-
-  return NextResponse.json({ ok: true, deal_id: dealId, count: rows.length, prompt2: cat, prompt3: ref, prompt4: roleRel })
+  return { deal_id: dealId, prompt1: rankRows.length, prompt2: p2, prompt3: p3, prompt4: p4, mapped }
 }
 
 export async function GET(req: Request) {
   try {
     const url = new URL(req.url)
-    const dealId = Number(url.searchParams.get('dealId'))
-    if (!Number.isFinite(dealId)) return NextResponse.json({ error: 'dealId required' }, { status: 400 })
-    return runForDeal(dealId)
+    const idsParam = url.searchParams.get('dealIds') || ''
+    const dealIds = idsParam.split(',').map(s => Number(s.trim())).filter(n => Number.isFinite(n))
+    if (dealIds.length === 0) return NextResponse.json({ error: 'dealIds required, comma-separated' }, { status: 400 })
+
+    const results = [] as any[]
+    for (const id of dealIds) {
+      results.push(await processDeal(id))
+    }
+
+    return NextResponse.json({ ok: true, processed: results })
   } catch (e: any) {
     return NextResponse.json({ error: String(e?.message ?? e) }, { status: 500 })
   }
@@ -307,10 +370,18 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json().catch(() => ({})) as { dealId?: number }
-    const dealId = Number(body.dealId)
-    if (!Number.isFinite(dealId)) return NextResponse.json({ error: 'dealId required' }, { status: 400 })
-    return runForDeal(dealId)
+    const body = await req.json().catch(() => ({})) as { dealIds?: number[] | string }
+    let dealIds: number[] = []
+    if (Array.isArray(body.dealIds)) dealIds = body.dealIds.map(n => Number(n)).filter(n => Number.isFinite(n))
+    else if (typeof body.dealIds === 'string') dealIds = body.dealIds.split(',').map(s => Number(s.trim())).filter(n => Number.isFinite(n))
+    if (dealIds.length === 0) return NextResponse.json({ error: 'dealIds required' }, { status: 400 })
+
+    const results = [] as any[]
+    for (const id of dealIds) {
+      results.push(await processDeal(id))
+    }
+
+    return NextResponse.json({ ok: true, processed: results })
   } catch (e: any) {
     return NextResponse.json({ error: String(e?.message ?? e) }, { status: 500 })
   }
