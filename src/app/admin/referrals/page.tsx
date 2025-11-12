@@ -256,7 +256,7 @@ export default function AdminReferralsPage() {
   return (
     <AdminShell title="Referrals" current="Referrals">
       <div className="space-y-6">
-        <h1 className="text-2xl font-semibold">Admin: Company Search & Jobs</h1>
+        <h1 className="text-2xl font-semibold">Company & Job Selection</h1>
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
           <div className="md:col-span-6">
             <label className="block text-sm text-zinc-600">Company Name</label>
@@ -312,7 +312,6 @@ export default function AdminReferralsPage() {
                     <tr className="text-left text-zinc-500">
                       <th className="py-2 pl-3 pr-2">Sel</th>
                       <th className="py-2 pr-4">Title</th>
-                      <th className="py-2 pr-4">Pipeline</th>
                       <th className="py-2 pr-4">Stage</th>
                     </tr>
                   </thead>
@@ -326,8 +325,7 @@ export default function AdminReferralsPage() {
                           <a href={d.job_url || '#'} target="_blank" className="text-emerald-600 hover:underline">{d.job_title || d.dealname || `#${d.deal_id}`}</a>
                           <div className="text-[11px] text-zinc-400">#{d.deal_id}</div>
                         </td>
-                        <td className="py-2 pr-4 align-top text-zinc-600">{d.pipeline || '—'}</td>
-                        <td className="py-2 pr-4 align-top text-zinc-600">{d.dealstage || '—'}</td>
+                        <td className="py-2 pr-4 align-top text-zinc-600">{(d as any).stage_label || d.dealstage || '—'}</td>
                       </tr>
                     ))}
                   </tbody>

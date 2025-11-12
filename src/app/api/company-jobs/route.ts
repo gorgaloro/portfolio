@@ -32,10 +32,10 @@ export async function GET(req: Request) {
       return NextResponse.json({ company: companyName ? { id: companyId, name: companyName } : undefined, deals: [] })
     }
 
-    // Try selecting dealstage; if it fails (column missing), fall back without it
+    // Try selecting dealstage and properties; if it fails (column missing), fall back without it
     let query = supabase
       .from('hubspot_deals')
-      .select('deal_id, dealname, job_title, job_url, pipeline, dealstage, hs_lastmodifieddate')
+      .select('deal_id, dealname, job_title, job_url, pipeline, dealstage, properties, application_date, hs_lastmodifieddate')
       .in('deal_id', ids)
 
     if (pipelineId) {
@@ -46,10 +46,10 @@ export async function GET(req: Request) {
     let dealsResp = await query.order('hs_lastmodifieddate', { ascending: false })
     let deals: any[] = (dealsResp.data as any[]) || []
     if (dealsResp.error) {
-      // Fall back to query without dealstage
+      // Fall back to query without optional fields
       let q2 = supabase
         .from('hubspot_deals')
-        .select('deal_id, dealname, job_title, job_url, pipeline, hs_lastmodifieddate')
+        .select('deal_id, dealname, job_title, job_url, pipeline, dealstage, properties, application_date, hs_lastmodifieddate')
         .in('deal_id', ids)
       if (pipelineId) q2 = q2.eq('pipeline', pipelineId)
       else if (pipeline) q2 = q2.eq('pipeline', pipeline)
@@ -114,12 +114,21 @@ export async function GET(req: Request) {
         })
         .filter((a: any) => a.visible !== false)
 
+      const props = (d as any).properties || {}
+      const labelFromProps = props.hs_pipeline_stage_label ?? props.dealstage_label ?? props.dealstage_name ?? props.stage_label ?? null
+      const stage_label = labelFromProps || (
+        typeof (d as any).dealstage === 'string' && (d as any).dealstage.length > 0 && !/^\d+$/.test((d as any).dealstage)
+          ? (d as any).dealstage
+          : ((d as any).application_date ? 'Application Submitted' : null)
+      )
+
       return {
         deal_id: d.deal_id,
         job_title: d.job_title || d.dealname,
         job_url: d.job_url || null,
         pipeline: d.pipeline,
         dealstage: (d as any).dealstage ?? null,
+        stage_label,
         summary: s,
         attributes: patched,
       }
