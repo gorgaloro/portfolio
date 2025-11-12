@@ -72,12 +72,20 @@ export async function POST(req: Request) {
     for (const d of dealsResp.data || []) {
       const existing = fitMap.get(d.deal_id)
       const jdText: string = (existing?.jd_text || d.submission_notes || '').toString()
+      const profileNarrative: string = (existing?.narrative || '').toString()
+      const priorScore: number | null = (typeof existing?.total_fit_percent === 'number' && isFinite(existing.total_fit_percent))
+        ? Math.max(0, Math.min(1, (existing.total_fit_percent as number) / 100))
+        : null
       const options = body.options || { summary: true, fit: true, keywords: true, score: true }
 
-      const system = 'You are a concise AI assistant for job referral preparation. Always return strict JSON.'
-      const user = `From the following job text, produce an enrichment JSON. Keep each summary under 120 words. If text is missing, infer conservatively. Output strict JSON with keys: jd_summary (string), fit_summary (string), keywords (object with arrays industry, process, technical each up to 6 strings), fit_score (number 0-1 or null).\n\nJob title: ${d.job_title || ''}\nJob text:\n${jdText || '[none]'}\n\nConstraints:\n- No lists in summaries.\n- No URLs.\n- Return only valid JSON.`
+      const system = 'You are a concise AI assistant for job referral preparation. Always return strict JSON only.'
+      const priorNote = priorScore != null ? `\nReference prior fit score (optional): ${priorScore}` : ''
+      const user = `Create an enrichment JSON comparing the candidate profile to the job. Keep each summary under 120 words. Return ONLY strict JSON with keys: jd_summary (string), fit_summary (string), keywords (object: {industry[], process[], technical[]}, up to 6 each), fit_score (number 0-1 or null).\n\nJob title: ${d.job_title || ''}\nCandidate Profile Narrative:\n${profileNarrative || '[none]'}\n\nJob text:\n${jdText || '[none]'}\n${priorNote}\n\nInstructions:\n- jd_summary: concise 2-4 sentence summary of the role in prose.\n- fit_summary: concise 2-4 sentences explicitly comparing the candidate profile to the job summary and likely keywords. Mention top strengths and any gaps.\n- keywords: extract and categorize important terms into industry, process, and technical.\n- fit_score: your estimate in [0,1] for how well the candidate fits the job.\n- No bullet lists. No URLs. Return ONLY valid JSON.`
       const ai = await callOpenAIJSON({ system, user })
       const obj = ai.data || {}
+
+      let scoreVal = options.score !== false ? (obj.fit_score ?? null) : null
+      if (typeof scoreVal !== 'number' || !isFinite(scoreVal)) scoreVal = priorScore
 
       results.push({
         deal_id: d.deal_id,
@@ -85,7 +93,7 @@ export async function POST(req: Request) {
         jd_summary: options.summary !== false ? (obj.jd_summary || null) : null,
         fit_summary: options.fit !== false ? (obj.fit_summary || null) : null,
         keywords: options.keywords !== false ? (obj.keywords || { industry: [], process: [], technical: [] }) : { industry: [], process: [], technical: [] },
-        fit_score: options.score !== false ? (obj.fit_score ?? null) : null,
+        fit_score: scoreVal ?? null,
         model: ai.model || 'gpt-4o-mini',
       })
     }

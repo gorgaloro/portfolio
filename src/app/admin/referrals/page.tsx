@@ -291,19 +291,49 @@ export default function AdminReferralsPage() {
         const res = await fetch(`/api/admin/referral-attributes?dealId=${r.deal_id}`)
         const jj = await res.json()
         if (res.ok) {
-          return { ...r, attributes: (jj.attributes || []).map((a: any) => ({
+          const apiAttrs = (jj.attributes || []).map((a: any) => ({
             attribute_name: a.attribute_name,
             label: a.label,
             pillar: a.pillar,
             color: a.color,
             final_rank: a.final_rank,
             visible: a.visible !== false,
-          })) }
+          }))
+          if (apiAttrs.length > 0) return { ...r, attributes: apiAttrs }
+          // Fallback: build from enrichment keywords if API returned none
+          const kw = r.keywords || { industry: [], process: [], technical: [] }
+          const built: any[] = []
+          let rank = 1
+          ;(['industry', 'process', 'technical'] as const).forEach((pillar) => {
+            const arr: string[] = Array.isArray(kw[pillar]) ? kw[pillar] : []
+            for (const k of arr) {
+              const label = String(k || '').trim()
+              if (!label) continue
+              built.push({ attribute_name: label, label, pillar, color: 'yellow', final_rank: rank++, visible: true })
+            }
+          })
+          return { ...r, attributes: built }
         }
       } catch {}
-      return { ...r, attributes: [] }
+      // On error: fallback from keywords
+      const kw = r.keywords || { industry: [], process: [], technical: [] }
+      const built: any[] = []
+      let rank = 1
+      ;(['industry', 'process', 'technical'] as const).forEach((pillar) => {
+        const arr: string[] = Array.isArray(kw[pillar]) ? kw[pillar] : []
+        for (const k of arr) {
+          const label = String(k || '').trim()
+          if (!label) continue
+          built.push({ attribute_name: label, label, pillar, color: 'yellow', final_rank: rank++, visible: true })
+        }
+      })
+      return { ...r, attributes: built }
     }))
     setEnrichResults(updated)
+    // Compute missing fit scores if possible
+    if (enrichOpts.score) {
+      computeMissingScores(updated).catch(() => {})
+    }
   }
 
   function updateEnriched(dealId: number, patch: any) {
@@ -332,6 +362,22 @@ export default function AdminReferralsPage() {
       if (typeof j.fit_score === 'number') updateEnriched(dealId, { fit_score: j.fit_score })
     } catch (e) {
       // surface? keep simple
+    }
+  }
+
+  async function computeMissingScores(items: any[]) {
+    for (const r of items) {
+      if (typeof r.fit_score === 'number' && isFinite(r.fit_score)) continue
+      const attrs = Array.isArray(r.attributes) ? r.attributes : []
+      if (attrs.length === 0) continue
+      try {
+        const resp = await fetch('/api/admin/recalc-fit-score', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ jd_summary: r.jd_summary, fit_summary: r.fit_summary, attributes: attrs })
+        })
+        const j = await resp.json()
+        if (resp.ok && typeof j.fit_score === 'number') updateEnriched(r.deal_id, { fit_score: j.fit_score })
+      } catch {}
     }
   }
 
@@ -492,6 +538,9 @@ export default function AdminReferralsPage() {
                 <div className="text-sm font-medium">Attributes</div>
                 <div className="text-xs text-zinc-500">Industry, Process, Technical</div>
                 <div className="mt-2 divide-y border rounded-md">
+                  {(r.attributes || []).length === 0 && (
+                    <div className="p-2 text-xs text-zinc-500">No attributes found</div>
+                  )}
                   {(r.attributes || []).sort((a, b) => (a.final_rank - b.final_rank)).map((a, idx) => (
                     <div key={`${a.attribute_name}-${idx}`} className="flex items-center gap-3 p-2 text-sm">
                       <div className="flex-1">
