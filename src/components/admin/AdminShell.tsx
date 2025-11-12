@@ -36,6 +36,8 @@ export default function AdminShell({ title, children, aside, current = 'Referral
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const navigation = baseNav.map((n) => ({ ...n, current: n.name === current }))
 
+  const hasAside = !!aside
+
   useEffect(() => {
     document.body.classList.add('admin-shell')
     return () => {
@@ -147,16 +149,18 @@ export default function AdminShell({ title, children, aside, current = 'Referral
       </div>
 
       <main className="lg:pl-72">
-        <div className="xl:pr-96">
+        <div className={classNames(hasAside ? 'xl:pr-96' : '')}>
           <div className="px-4 py-10 sm:px-6 lg:px-8 lg:py-6">
             {children}
           </div>
         </div>
       </main>
 
-      <aside className="fixed inset-y-0 right-0 hidden w-96 overflow-y-auto border-l border-gray-200 px-4 py-6 sm:px-6 lg:px-8 xl:block">
-        {aside}
-      </aside>
+      {hasAside && (
+        <aside className="fixed inset-y-0 right-0 hidden w-96 overflow-y-auto border-l border-gray-200 px-4 py-6 sm:px-6 lg:px-8 xl:block">
+          {aside}
+        </aside>
+      )}
     </div>
   )
 }
