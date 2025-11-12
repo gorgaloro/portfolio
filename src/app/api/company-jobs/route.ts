@@ -44,7 +44,7 @@ export async function GET(req: Request) {
       query = query.eq('pipeline', pipeline)
     }
     let dealsResp = await query.order('hs_lastmodifieddate', { ascending: false })
-    let deals = dealsResp.data || []
+    let deals: any[] = (dealsResp.data as any[]) || []
     if (dealsResp.error) {
       // Fall back to query without dealstage
       let q2 = supabase
@@ -55,7 +55,7 @@ export async function GET(req: Request) {
       else if (pipeline) q2 = q2.eq('pipeline', pipeline)
       const fb = await q2.order('hs_lastmodifieddate', { ascending: false })
       if (fb.error) return NextResponse.json({ error: fb.error.message }, { status: 500 })
-      deals = fb.data || []
+      deals = (fb.data as any[]) || []
     }
     if (!deals.length) return NextResponse.json({ deals: [] })
 
@@ -119,6 +119,7 @@ export async function GET(req: Request) {
         job_title: d.job_title || d.dealname,
         job_url: d.job_url || null,
         pipeline: d.pipeline,
+        dealstage: (d as any).dealstage ?? null,
         summary: s,
         attributes: patched,
       }
