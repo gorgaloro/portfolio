@@ -17,26 +17,40 @@ export async function GET(req: Request) {
     const limit = Math.min(Number(searchParams.get('limit') || '100'), 500)
     const supabase = getClient()
     const pat = q ? `%${q}%` : null
+    // Default to Job Application pipeline id unless overridden
+    const pipelineId = (searchParams.get('pipelineId') || '1320210144').trim()
+    // Find deals in the requested pipeline
+    const dealsResp = await supabase
+      .from('hubspot_deals')
+      .select('deal_id')
+      .eq('pipeline', pipelineId)
+    if (dealsResp.error) return NextResponse.json({ error: dealsResp.error.message }, { status: 500 })
+    const dealIds = (dealsResp.data || []).map((d: any) => d.deal_id)
+    if (dealIds.length === 0) return NextResponse.json({ companies: [] })
 
-    let resp = await supabase
-      .from('hubspot_deal_companies_view')
-      .select('company_id, name, domain', { count: 'exact' })
-      .order('name', { ascending: true })
-      .limit(limit)
+    // Map to company IDs
+    const mapResp = await supabase
+      .from('hubspot_deal_companies')
+      .select('company_id')
+      .in('deal_id', dealIds)
+    if (mapResp.error) return NextResponse.json({ error: mapResp.error.message }, { status: 500 })
+    const companyIds = Array.from(new Set((mapResp.data || []).map((r: any) => r.company_id)))
+    // Count jobs per company
+    const counts = new Map<number, number>()
+    for (const r of (mapResp.data || [])) counts.set(r.company_id, (counts.get(r.company_id) || 0) + 1)
+    if (companyIds.length === 0) return NextResponse.json({ companies: [] })
 
-    if (resp.error) {
-      let fallback = supabase.from('hubspot_companies').select('company_id, name, domain').order('name', { ascending: true }).limit(limit)
-      if (q && pat) fallback = fallback.or(`name.ilike.${pat},domain.ilike.${pat}`)
-      const fb = await fallback
-      if (fb.error) return NextResponse.json({ error: fb.error.message }, { status: 500 })
-      return NextResponse.json({ companies: fb.data || [] })
-    }
-
-    let rows = resp.data || []
-    if (q && pat) rows = rows.filter((r: any) => (r.name || '').toLowerCase().includes(q.toLowerCase()) || (r.domain || '').toLowerCase().includes(q.toLowerCase()))
-    const uniq = new Map<number, any>()
-    for (const r of rows) if (!uniq.has(r.company_id)) uniq.set(r.company_id, r)
-    return NextResponse.json({ companies: Array.from(uniq.values()) })
+    // Load companies
+    const compResp = await supabase
+      .from('hubspot_companies')
+      .select('company_id, name, domain')
+      .in('company_id', companyIds)
+    if (compResp.error) return NextResponse.json({ error: compResp.error.message }, { status: 500 })
+    let rows = (compResp.data || []).map((r: any) => ({ ...r, jobs_count: counts.get(r.company_id) || 0 }))
+    if (q) rows = rows.filter((r: any) => (r.name || '').toLowerCase().includes(q.toLowerCase()) || (r.domain || '').toLowerCase().includes(q.toLowerCase()))
+    rows.sort((a: any, b: any) => (b.jobs_count - a.jobs_count) || (a.name || '').localeCompare(b.name || ''))
+    rows = rows.slice(0, limit)
+    return NextResponse.json({ companies: rows })
   } catch (e: any) {
     return NextResponse.json({ error: String(e?.message ?? e) }, { status: 500 })
   }

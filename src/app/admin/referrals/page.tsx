@@ -26,14 +26,13 @@ export default function AdminReferralsPage() {
 
   const [companyId, setCompanyId] = useState<string>('')
   const [companyName, setCompanyName] = useState<string>('')
-  const [referrerName, setReferrerName] = useState<string>('')
   const [warmIntro, setWarmIntro] = useState<string>('')
   const [warmLoading, setWarmLoading] = useState(false)
   const [warmMsg, setWarmMsg] = useState<string>('')
 
   const [searchQ, setSearchQ] = useState<string>('')
   const [searching, setSearching] = useState<boolean>(false)
-  const [companies, setCompanies] = useState<Array<{ company_id: number; name: string; domain?: string | null }>>([])
+  const [companies, setCompanies] = useState<Array<{ company_id: number; name: string; domain?: string | null; jobs_count?: number }>>([])
   const [companyDeals, setCompanyDeals] = useState<Array<{ deal_id: number; job_title?: string; dealname?: string; job_url?: string | null; pipeline?: string | null; dealstage?: string | null }>>([])
   const [checked, setChecked] = useState<Record<number, boolean>>({})
 
@@ -70,8 +69,8 @@ export default function AdminReferralsPage() {
       const r = await fetch(`/api/admin/companies-search?q=${encodeURIComponent(searchQ)}`)
       const j = await r.json()
       if (!r.ok) throw new Error(j.error || 'Search failed')
-      const list = (j.companies || []) as Array<{ company_id: number; name: string; domain?: string | null }>
-      setCompanies(list.sort((a, b) => (a.name || '').localeCompare(b.name || '')))
+      const list = (j.companies || []) as Array<{ company_id: number; name: string; domain?: string | null; jobs_count?: number }>
+      setCompanies(list.sort((a, b) => ((b.jobs_count || 0) - (a.jobs_count || 0)) || (a.name || '').localeCompare(b.name || '')))
     } catch (e: any) {
       setMsg(e.message || String(e))
     } finally {
@@ -90,7 +89,7 @@ export default function AdminReferralsPage() {
     setCompanyDeals([])
     setChecked({})
     try {
-      const r = await fetch(`/api/company-jobs?companyId=${id}`)
+      const r = await fetch(`/api/company-jobs?companyId=${id}&pipelineId=1320210144`)
       const j = await r.json()
       if (!r.ok) throw new Error(j.error || 'Load deals failed')
       const list = (j.deals || []) as Array<{ deal_id: number; job_title?: string; dealname?: string; job_url?: string | null; pipeline?: string | null; dealstage?: string | null }>
@@ -190,7 +189,7 @@ export default function AdminReferralsPage() {
       const j = await r.json()
       if (!r.ok) throw new Error(j.error || 'Failed to load')
       const intro = j.intro || null
-      setWarmIntro(intro?.message || '')
+      setWarmIntro(sanitizeIntro(intro?.message || ''))
       if (intro?.company_name) setCompanyName(intro.company_name)
       setWarmMsg(intro ? 'Loaded' : 'No existing intro')
     } catch (e: any) {
@@ -211,14 +210,13 @@ export default function AdminReferralsPage() {
         body: JSON.stringify({
           companyId: Number(companyId),
           companyName: companyName || undefined,
-          referrerName: referrerName || undefined,
           regenerate,
         })
       })
       const j = await resp.json()
       if (!resp.ok) throw new Error(j.error || 'Generate failed')
       const intro = j.intro || null
-      setWarmIntro(intro?.message || '')
+      setWarmIntro(sanitizeIntro(intro?.message || ''))
       if (intro?.company_name) setCompanyName(intro.company_name)
       setWarmMsg('Generated')
     } catch (e: any) {
@@ -253,6 +251,14 @@ export default function AdminReferralsPage() {
     }
   }
 
+  function sanitizeIntro(t: string) {
+    let s = String(t || '')
+    s = s.replace(/^(\s*(hi|hello|hey)[^\n]*\n+)/i, '')
+    s = s.replace(/^.*https?:[^\n]*$/gmi, '').replace(/\n{3,}/g, '\n\n')
+    s = s.replace(/\n+\s*(best|cheers|sincerely|thanks|thank you)[^\n]*$/i, '')
+    return s.trim()
+  }
+
   return (
     <AdminShell title="Referrals" current="Referrals">
       <div className="space-y-6">
@@ -280,10 +286,17 @@ export default function AdminReferralsPage() {
                 <button
                   key={c.company_id}
                   onClick={() => selectCompany(c)}
-                  className="w-full text-left px-3 py-2 text-sm hover:bg-zinc-50"
+                  className="w-full px-3 py-2 text-sm hover:bg-zinc-50 flex items-center justify-between"
                 >
-                  <div className="font-medium">{c.name}</div>
-                  <div className="text-xs text-zinc-500">{c.domain || c.company_id}</div>
+                  <div className="text-left">
+                    <div className="font-medium">{c.name}</div>
+                    <div className="text-xs text-zinc-500">{c.domain || c.company_id}</div>
+                  </div>
+                  {(typeof c.jobs_count === 'number') && c.jobs_count > 0 && (
+                    <span className="ml-3 inline-flex items-center justify-center h-6 min-w-6 rounded-full bg-emerald-600 text-white text-xs font-semibold px-2">
+                      {c.jobs_count}
+                    </span>
+                  )}
                 </button>
               ))}
               {companies.length === 0 && (
@@ -335,30 +348,22 @@ export default function AdminReferralsPage() {
           </div>
         </div>
 
-        <h1 className="text-2xl font-semibold">Admin: Warm Intro</h1>
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div className="md:col-span-3">
-            <label className="block text-sm text-zinc-600">Company ID</label>
-            <input value={companyId} onChange={(e) => setCompanyId(e.target.value)} placeholder="193056111306" className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
-          </div>
-          <div className="md:col-span-3">
-            <label className="block text-sm text-zinc-600">Company Name (optional)</label>
-            <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
-          </div>
-          <div className="md:col-span-3">
-            <label className="block text-sm text-zinc-600">Referrer Name (optional)</label>
-            <input value={referrerName} onChange={(e) => setReferrerName(e.target.value)} className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
-          </div>
-          <div className="md:col-span-3 flex items-end gap-2">
-            <button onClick={warmLoad} disabled={!companyId || warmLoading} className="rounded-md border border-zinc-300 px-3 py-2 text-sm">Load</button>
-            <button onClick={() => warmGenerate(false)} disabled={!companyId || warmLoading} className="rounded-md bg-emerald-600 text-white px-3 py-2 text-sm">{warmLoading ? 'Working…' : 'Generate'}</button>
-            <button onClick={warmSave} disabled={!companyId || warmLoading} className="rounded-md bg-zinc-900 text-white px-3 py-2 text-sm">Save</button>
-          </div>
+      <h1 className="text-2xl font-semibold">Introduction</h1>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+        <div className="md:col-span-8">
+          <label className="block text-sm text-zinc-600">Company Name (optional)</label>
+          <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} className="mt-1 w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
         </div>
-        {warmMsg && <div className="text-sm text-zinc-500">{warmMsg}</div>}
-        <textarea value={warmIntro} onChange={(e) => setWarmIntro(e.target.value)} rows={6} placeholder="Generated two-paragraph intro will appear here" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
+        <div className="md:col-span-4 flex items-end gap-2">
+          <button onClick={warmLoad} disabled={!companyId || warmLoading} className="rounded-md border border-zinc-300 px-3 py-2 text-sm">Load</button>
+          <button onClick={() => warmGenerate(false)} disabled={!companyId || warmLoading} className="rounded-md bg-emerald-600 text-white px-3 py-2 text-sm">{warmLoading ? 'Working…' : 'Generate'}</button>
+          <button onClick={warmSave} disabled={!companyId || warmLoading} className="rounded-md bg-zinc-900 text-white px-3 py-2 text-sm">Save</button>
+        </div>
+      </div>
+      {warmMsg && <div className="text-sm text-zinc-500">{warmMsg}</div>}
+      <textarea value={warmIntro} onChange={(e) => setWarmIntro(e.target.value)} rows={6} placeholder="Generated two-paragraph intro will appear here" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
 
-        <h1 className="text-2xl font-semibold">Admin: Referral Attributes</h1>
+      <h1 className="text-2xl font-semibold">Admin: Referral Attributes</h1>
         <div className="flex items-end gap-3">
           <div>
             <label className="block text-sm text-zinc-600">Deal ID</label>

@@ -10,10 +10,28 @@ function getClient() {
   return createClient(url, key)
 }
 
-function buildPrompt(company_name: string, research: string | null | undefined, referrer_name?: string) {
-  const system = `You are helping Allen Walker write a short, heartfelt thank-you message for an internal referrer who is helping him connect with their company. You must follow all constraints exactly.`
-  const researchText = research?.trim() || ''
-  const user = `Write a two-paragraph message (under 180 words, plain text, no lists, no em-dashes).\nTone: warm, conversational, genuine. No jargon or grand claims.\nAudience: an internal referrer${referrer_name ? ` named ${referrer_name}` : ''}.\nGoal: thank them, show sincere interest in the company, and invite advice on next steps or introductions.\n\nInputs:\n- Company name: ${company_name}\n- Company research: ${researchText || '[none provided]'}\n- Allen profile URL: https://www.allenwalker.info/about\n- Allen background highlights: program delivery, GTM strategy, CRM systems, enterprise technology, healthcare IT, sustainability.\n\nInstructions:\n1) Paragraph 1: Thank them for supporting Allen’s job search and their time. Express enthusiasm for ${company_name} and reference its mission or purpose naturally, only using facts from the research if present. End with how Allen’s values align with the purpose.\n2) Paragraph 2: Briefly link Allen’s experience and passion to ${company_name}’s mission, products, or industry with concrete, relevant examples. End with a grounded note of gratitude and a clear call to action inviting advice on next steps or internal introductions.\n\nFormatting: two paragraphs, plain text, under 180 words total, no lists, no em-dashes, no placeholders. If research is missing, keep references general and accurate.`
+function buildPrompt(company_name: string, research: string | null | undefined) {
+  const system = `You are helping Allen Walker write a short, heartfelt thank-you note for an internal referrer who is helping him connect with their company. Follow the constraints exactly.`
+  const researchText = (research?.trim() || '')
+  const user = `Write exactly two short paragraphs (under 180 words total). Output ONLY the body text — no greeting/salutation and no closing/sign-off.
+Tone: warm, conversational, genuine. No jargon or grand claims.
+Audience: an internal referrer.
+Goal: thank them, show sincere interest in the company, and invite advice on next steps or introductions.
+
+Inputs:
+- Company name: ${company_name}
+- Company research: ${researchText || '[none provided]'}
+- Allen background highlights: program delivery, GTM strategy, CRM systems, enterprise technology, healthcare IT, sustainability.
+
+Instructions:
+1) Paragraph 1: Thank them for supporting Allen’s job search and their time. Express enthusiasm for ${company_name} and, if research is provided, naturally reference its mission or purpose using only accurate facts.
+2) Paragraph 2: Briefly connect Allen’s experience and passion to ${company_name}’s mission, products, or industry with concrete, relevant examples. End with gratitude and a clear CTA inviting advice on next steps or internal introductions.
+
+Strict formatting rules (must comply):
+- Do NOT include any greeting or salutation (e.g., "Hi", "Hello", "Dear").
+- Do NOT include any closing or signature (e.g., "Best", "Cheers", "Sincerely", names).
+- Do NOT include any URLs.
+- No lists, no em-dashes, no placeholders.`
   return { system, user }
 }
 
@@ -59,7 +77,6 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({})) as {
       companyId?: number
       companyName?: string
-      referrerName?: string
       regenerate?: boolean
       message?: string
       saveOnly?: boolean
@@ -88,13 +105,11 @@ export async function POST(req: Request) {
       const props = (comp.data?.[0]?.properties as any) || {}
       const parts = [] as string[]
       const desc = props?.description || props?.about_us || ''
-      const domain = props?.domain || ''
       if (desc) parts.push(String(desc))
-      if (domain) parts.push(`Website: ${domain}`)
       research = parts.join('\n')
     } catch {}
 
-    const prompt = buildPrompt(companyName, research, body.referrerName)
+    const prompt = buildPrompt(companyName, research)
     const ai = await callOpenAI(prompt)
 
     const up = await supabase.from('referral_warm_intros').upsert({
