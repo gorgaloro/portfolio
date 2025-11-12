@@ -39,7 +39,15 @@ export default function AdminReferralsPage() {
   const [enriching, setEnriching] = useState(false)
   const [enrichMsg, setEnrichMsg] = useState<string>('')
   const [enrichOpts, setEnrichOpts] = useState<{ summary: boolean; fit: boolean; keywords: boolean; score: boolean }>({ summary: true, fit: true, keywords: true, score: true })
-  const [enrichResults, setEnrichResults] = useState<Array<{ deal_id: number; job_title?: string | null; jd_summary?: string | null; fit_summary?: string | null; keywords?: { industry?: string[]; process?: string[]; technical?: string[] }; fit_score?: number | null }>>([])
+  const [enrichResults, setEnrichResults] = useState<Array<{
+    deal_id: number
+    job_title?: string | null
+    jd_summary?: string | null
+    fit_summary?: string | null
+    keywords?: { industry?: string[]; process?: string[]; technical?: string[] }
+    fit_score?: number | null
+    attributes?: Array<{ attribute_name: string; label: string; pillar: 'industry'|'process'|'technical'; color: 'green'|'yellow'|'grey'; final_rank: number; visible?: boolean }>
+  }>>([])
 
   // Typeahead search
   useEffect(() => {
@@ -266,12 +274,64 @@ export default function AdminReferralsPage() {
       const resp = await fetch('/api/admin/enrich-jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dealIds: ids, options: enrichOpts, preview: true }) })
       const j = await resp.json()
       if (!resp.ok) throw new Error(j.error || 'Enrichment failed')
-      setEnrichResults(j.results || [])
+      const base = (j.results || []) as any[]
+      setEnrichResults(base)
+      await loadAttributesForResults(base)
       setEnrichMsg(`Enriched ${Array.isArray(j.results) ? j.results.length : 0} job(s)`) 
     } catch (e: any) {
       setEnrichMsg(e.message || String(e))
     } finally {
       setEnriching(false)
+    }
+  }
+
+  async function loadAttributesForResults(items: any[]) {
+    const updated = await Promise.all(items.map(async (r) => {
+      try {
+        const res = await fetch(`/api/admin/referral-attributes?dealId=${r.deal_id}`)
+        const jj = await res.json()
+        if (res.ok) {
+          return { ...r, attributes: (jj.attributes || []).map((a: any) => ({
+            attribute_name: a.attribute_name,
+            label: a.label,
+            pillar: a.pillar,
+            color: a.color,
+            final_rank: a.final_rank,
+            visible: a.visible !== false,
+          })) }
+        }
+      } catch {}
+      return { ...r, attributes: [] }
+    }))
+    setEnrichResults(updated)
+  }
+
+  function updateEnriched(dealId: number, patch: any) {
+    setEnrichResults((arr) => arr.map((r) => r.deal_id === dealId ? { ...r, ...patch } : r))
+  }
+
+  function updateAttribute(dealId: number, idx: number, patch: Partial<{ color: 'green'|'yellow'|'grey'; final_rank: number }>) {
+    setEnrichResults((arr) => arr.map((r) => {
+      if (r.deal_id !== dealId) return r
+      const attrs = (r.attributes || []).slice()
+      attrs[idx] = { ...attrs[idx], ...patch }
+      return { ...r, attributes: attrs }
+    }))
+  }
+
+  async function recalcFit(dealId: number) {
+    const r = enrichResults.find((x) => x.deal_id === dealId)
+    if (!r) return
+    try {
+      const resp = await fetch('/api/admin/recalc-fit-score', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jd_summary: r.jd_summary, fit_summary: r.fit_summary, attributes: r.attributes || [] })
+      })
+      const j = await resp.json()
+      if (!resp.ok) throw new Error(j.error || 'Recalc failed')
+      if (typeof j.fit_score === 'number') updateEnriched(dealId, { fit_score: j.fit_score })
+    } catch (e) {
+      // surface? keep simple
     }
   }
 
@@ -403,31 +463,61 @@ export default function AdminReferralsPage() {
         <div className="space-y-4">
           {enrichResults.map((r) => (
             <div key={r.deal_id} className="rounded-md border border-zinc-200 p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="text-emerald-700 font-medium">{r.job_title || `#${r.deal_id}`}</div>
-                  <div className="text-xs text-zinc-400">#{r.deal_id}</div>
-                </div>
-                {typeof r.fit_score === 'number' && <div className="text-sm text-zinc-600">{Math.round(r.fit_score * 100)}%</div>}
+              <div>
+                <div className="text-emerald-700 font-medium">{r.job_title || `#${r.deal_id}`}</div>
+                <div className="text-xs text-zinc-400">#{r.deal_id}</div>
               </div>
-              {r.jd_summary && (<div className="mt-3 text-sm"><div className="font-medium">Job Description Summary</div><p className="mt-1 text-zinc-700">{r.jd_summary}</p></div>)}
-              {r.fit_summary && (<div className="mt-3 text-sm"><div className="font-medium">Fit Summary</div><p className="mt-1 text-zinc-700">{r.fit_summary}</p></div>)}
-              {r.keywords && (
-                <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <div>
-                    <div className="text-xs text-zinc-500">Industry</div>
-                    <div className="mt-1 flex flex-wrap gap-1">{(r.keywords.industry || []).map((k) => (<span key={k} className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5 text-xs">{k}</span>))}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-zinc-500">Process</div>
-                    <div className="mt-1 flex flex-wrap gap-1">{(r.keywords.process || []).map((k) => (<span key={k} className="inline-flex items-center rounded-full bg-yellow-50 text-yellow-700 px-2 py-0.5 text-xs">{k}</span>))}</div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-zinc-500">Technical</div>
-                    <div className="mt-1 flex flex-wrap gap-1">{(r.keywords.technical || []).map((k) => (<span key={k} className="inline-flex items-center rounded-full bg-zinc-100 text-zinc-700 px-2 py-0.5 text-xs">{k}</span>))}</div>
-                  </div>
+
+              <div className="mt-3 text-sm">
+                <div className="font-medium">Job Description Summary</div>
+                <textarea
+                  className="mt-1 w-full rounded-md border border-zinc-300 px-2 py-1"
+                  rows={4}
+                  value={r.jd_summary || ''}
+                  onChange={(e) => updateEnriched(r.deal_id, { jd_summary: e.target.value })}
+                />
+              </div>
+
+              <div className="mt-3 text-sm">
+                <div className="font-medium">Fit Summary{typeof r.fit_score === 'number' ? ` (Fit Score ${Math.round(r.fit_score * 100)}%)` : ''}</div>
+                <textarea
+                  className="mt-1 w-full rounded-md border border-zinc-300 px-2 py-1"
+                  rows={4}
+                  value={r.fit_summary || ''}
+                  onChange={(e) => updateEnriched(r.deal_id, { fit_summary: e.target.value })}
+                />
+              </div>
+
+              <div className="mt-4">
+                <div className="text-sm font-medium">Attributes</div>
+                <div className="text-xs text-zinc-500">Industry, Process, Technical</div>
+                <div className="mt-2 divide-y border rounded-md">
+                  {(r.attributes || []).sort((a, b) => (a.final_rank - b.final_rank)).map((a, idx) => (
+                    <div key={`${a.attribute_name}-${idx}`} className="flex items-center gap-3 p-2 text-sm">
+                      <div className="flex-1">
+                        <div className="font-medium text-zinc-700">{a.label}</div>
+                        <div className="text-xs text-zinc-500 capitalize">{a.pillar}</div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-zinc-500">Rank</label>
+                        <input type="number" value={a.final_rank} onChange={(e)=> updateAttribute(r.deal_id, idx, { final_rank: Number(e.target.value) })} className="w-16 rounded-md border border-zinc-300 px-2 py-1 text-sm" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-xs text-zinc-500">Status</label>
+                        <select value={a.color} onChange={(e)=> updateAttribute(r.deal_id, idx, { color: e.target.value as any })} className="rounded-md border border-zinc-300 px-2 py-1 text-sm">
+                          <option value="green">Green</option>
+                          <option value="yellow">Yellow</option>
+                          <option value="grey">Grey</option>
+                        </select>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
+
+              <div className="mt-4 flex justify-end">
+                <button onClick={() => recalcFit(r.deal_id)} className="rounded-md border px-3 py-1 text-sm">Recalculate Fit Score</button>
+              </div>
             </div>
           ))}
         </div>
