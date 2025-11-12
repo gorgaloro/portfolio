@@ -13,31 +13,8 @@ function getClient() {
   return createClient(url, key)
 }
 
-function sha256Hex(s: string) {
-  return crypto.createHash('sha256').update(String(s || ''), 'utf8').digest('hex')
-}
-
-function paretoWeight(rank: number) {
-  const w = 100 * Math.pow(0.6, Math.max(0, (rank || 1) - 1))
-  return Math.max(1, Math.round(w))
-}
-
-function multForColor(c: string): number {
-  if (c === 'green') return 1
-  if (c === 'yellow') return 0.65
-  return 0
-}
-
 function escapeRegExp(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
-function normLabel(s: string) {
-  return String(s || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9+ ]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
 }
 
 function countInParagraphs(text: string, term: string) {
@@ -67,7 +44,6 @@ function buildRankedAttributes(jdText: string, jobTitle: string | null, kw: { in
       const { base, boosted } = countInParagraphs(jdText, label)
       let s = base + 2 * boosted
       if (title && new RegExp(`\\b${escapeRegExp(label)}\\b`, 'i').test(title)) s += 3
-      // slight pillar bias to surface actionable/technical items first
       if (pillar === 'technical') s += 0.5
       else if (pillar === 'process') s += 0.3
       items.push({ label, pillar, score: s })
@@ -77,24 +53,18 @@ function buildRankedAttributes(jdText: string, jobTitle: string | null, kw: { in
   add(kw.process || [], 'process')
   add(kw.technical || [], 'technical')
 
-  // Deduplicate by normalized label; if conflict, prefer process > technical > industry
   const pickOrder: ('process'|'technical'|'industry')[] = ['process', 'technical', 'industry']
   const byKey = new Map<string, { label: string; pillar: 'industry'|'process'|'technical'; score: number }>()
   for (const it of items) {
-    const k = normLabel(it.label)
+    const k = it.label.toLowerCase().replace(/[^a-z0-9+ ]+/g, ' ').replace(/\s+/g, ' ').trim()
     const prev = byKey.get(k)
     if (!prev) { byKey.set(k, it); continue }
-    // prefer higher score or preferred pillar
-    const prevIdx = pickOrder.indexOf(prev.pillar as any)
-    const curIdx = pickOrder.indexOf(it.pillar as any)
-    if (it.score > prev.score + 0.1 || curIdx < prevIdx) {
-      byKey.set(k, it)
-    }
+    const prevIdx = pickOrder.indexOf(prev.pillar)
+    const curIdx = pickOrder.indexOf(it.pillar)
+    if (it.score > prev.score + 0.1 || curIdx < prevIdx) byKey.set(k, it)
   }
-
   const unique = Array.from(byKey.values())
   unique.sort((a, b) => (b.score - a.score) || a.pillar.localeCompare(b.pillar) || a.label.localeCompare(b.label))
-  // Assign final ranks 1..N
   return unique.map((u, i) => ({ attribute_name: u.label, label: u.label, pillar: u.pillar, color: 'grey' as const, final_rank: i + 1, visible: true }))
 }
 
@@ -124,7 +94,6 @@ async function getResumeText(): Promise<string> {
       const t = await fs.readFile(p, 'utf8')
       if (t && t.trim().length > 0) return t
     } catch {}
-    // Default public profile fallback
     try {
       const r = await fetch('https://www.allenwalker.info/about')
       if (r.ok) return htmlToText(await r.text())
@@ -153,30 +122,30 @@ async function callOpenAIJSON(prompt: { system: string, user: string }) {
   if (!resp.ok) throw new Error(`OpenAI error ${resp.status}: ${text}`)
   const json = JSON.parse(text)
   const content: string = json?.choices?.[0]?.message?.content?.trim() || ''
-  // try parse as JSON; if wrapped or with code fences, strip
   const cleaned = content.replace(/^```(?:json)?\n?|\n?```$/g, '')
   try {
     return { data: JSON.parse(cleaned), usage: json?.usage, model: json?.model, raw: content }
   } catch {
-    // fallback minimal shape
     return { data: { jd_summary: content, fit_summary: '', keywords: { industry: [], process: [], technical: [] }, fit_score: null }, usage: json?.usage, model: json?.model, raw: content }
   }
 }
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json().catch(() => ({})) as {
-      dealIds?: number[]
-      options?: { summary?: boolean, fit?: boolean, keywords?: boolean, score?: boolean }
-      preview?: boolean
-    }
+function sha256Hex(s: string) {
+  return crypto.createHash('sha256').update(String(s || ''), 'utf8').digest('hex')
+}
+function paretoWeight(rank: number) { const w = 100 * Math.pow(0.6, Math.max(0, (rank || 1) - 1)); return Math.max(1, Math.round(w)) }
+function multForColor(c: string): number { if (c === 'green') return 1; if (c === 'yellow') return 0.65; return 0 }
 
-    const dealIds = (body.dealIds || []).filter((x) => Number.isFinite(x)).map((x) => Number(x))
-    if (dealIds.length === 0) return NextResponse.json({ error: 'dealIds required' }, { status: 400 })
+export async function GET(req: Request) {
+  try {
+    const url = new URL(req.url)
+    const idsParam = url.searchParams.get('dealIds') || ''
+    const dealIds = idsParam.split(',').map(s => Number(s.trim())).filter(n => Number.isFinite(n))
+    if (dealIds.length === 0) return NextResponse.json({ error: 'dealIds required, comma-separated' }, { status: 400 })
 
     const supabase = getClient()
+    const resumeText = await getResumeText()
 
-    // fetch deal basics and any existing jd_text
     const dealsResp = await supabase
       .from('hubspot_deals')
       .select('deal_id, job_title, submission_notes')
@@ -185,14 +154,13 @@ export async function POST(req: Request) {
 
     const fitResp = await supabase
       .from('job_fit_summary')
-      .select('deal_id, jd_text, jd_summary, narrative, total_fit_percent')
+      .select('deal_id, jd_text, narrative, total_fit_percent')
       .in('deal_id', dealIds)
-    // fitResp may error in some envs; tolerate
     const fitMap = new Map<number, any>()
     if (!fitResp.error) for (const r of (fitResp.data || [])) fitMap.set(r.deal_id, r)
 
-    const results: any[] = []
-    const resumeText = await getResumeText()
+    const persisted: any[] = []
+
     for (const d of dealsResp.data || []) {
       const existing = fitMap.get(d.deal_id)
       const jdText: string = (existing?.jd_text || d.submission_notes || '').toString()
@@ -200,79 +168,57 @@ export async function POST(req: Request) {
       const priorScore: number | null = (typeof existing?.total_fit_percent === 'number' && isFinite(existing.total_fit_percent))
         ? Math.max(0, Math.min(1, (existing.total_fit_percent as number) / 100))
         : null
-      const options = body.options || { summary: true, fit: true, keywords: true, score: true }
 
       const system = 'You are a concise AI assistant for job referral preparation. Always return STRICT JSON only.'
       const priorNote = priorScore != null ? `\nReference prior fit score (optional): ${priorScore}` : ''
       const user = `Create an enrichment JSON comparing the candidate profile to the job. Keep each summary under 120 words. Return ONLY strict JSON with keys: \n- jd_summary (string)\n- fit_summary (string)\n- keywords (object: {industry[], process[], technical[]} with up to 10 per pillar)\n- fit_score (number 0-1 or null)\n\nJob title: ${d.job_title || ''}\nCandidate Profile Narrative:\n${profileNarrative || '[none]'}\n\nJob text:\n${jdText || '[none]'}\n${priorNote}\n\nInstructions:\n- jd_summary: concise 2-4 sentence summary of the role in prose.\n- fit_summary: concise 2-4 sentences explicitly comparing the candidate profile to the job summary and likely keywords. Mention top strengths and any gaps.\n- keywords: extract and categorize important terms into industry, process, and technical; NO duplicates; cap 10 items per pillar; strings only.\n- fit_score: your estimate in [0,1] for how well the candidate fits the job.\n- No bullet lists. No URLs. Return ONLY valid JSON.`
+
       const ai = await callOpenAIJSON({ system, user })
       const obj = ai.data || {}
-
-      let scoreVal = options.score !== false ? (obj.fit_score ?? null) : null
-      if (typeof scoreVal !== 'number' || !isFinite(scoreVal)) scoreVal = priorScore
-
-      // Build ranked attributes from keywords using JD salience and title boosts
+      let scoreVal: number | null = (typeof obj.fit_score === 'number' && isFinite(obj.fit_score)) ? obj.fit_score : priorScore
       const kw = (obj.keywords || {}) as { industry?: string[]; process?: string[]; technical?: string[] }
       const attrs: any[] = buildRankedAttributes(jdText, d.job_title || null, kw)
 
-      const baseResult: any = {
+      const jd_hash = sha256Hex(jdText)
+      const profile_hash = sha256Hex(profileNarrative)
+      const percent = (typeof scoreVal === 'number' && isFinite(scoreVal)) ? Math.round(Math.max(0, Math.min(1, scoreVal)) * 100) : null
+
+      await supabase.from('job_fit_summary').upsert({
         deal_id: d.deal_id,
         job_title: d.job_title || null,
-        jd_summary: options.summary !== false ? (obj.jd_summary || null) : null,
-        fit_summary: options.fit !== false ? (obj.fit_summary || null) : null,
-        keywords: options.keywords !== false ? (obj.keywords || { industry: [], process: [], technical: [] }) : { industry: [], process: [], technical: [] },
-        attributes: attrs,
-        fit_score: scoreVal ?? null,
-        model: ai.model || 'gpt-4o-mini',
-      }
-      baseResult.debug = {
-        raw: ai.raw,
-        usage: ai.usage,
-        model: ai.model,
-        prompt: { system, user },
-        resume_bytes: (resumeText || '').length,
-      }
-      if (!(body as any).preview) {
-        const jd_hash = sha256Hex(jdText)
-        const profile_hash = sha256Hex(profileNarrative)
-        const percent = (typeof scoreVal === 'number' && isFinite(scoreVal)) ? Math.round(Math.max(0, Math.min(1, scoreVal)) * 100) : null
-        await supabase.from('job_fit_summary').upsert({
-          deal_id: d.deal_id,
-          job_title: d.job_title || null,
-          jd_text: jdText || null,
-          jd_summary: options.summary !== false ? (obj.jd_summary || null) : null,
-          narrative: profileNarrative || null,
-          jd_hash,
-          profile_hash,
-          analyzed_at: new Date().toISOString(),
-          total_fit_percent: percent,
-        }, { onConflict: 'deal_id' })
+        jd_text: jdText || null,
+        jd_summary: obj.jd_summary || null,
+        narrative: profileNarrative || null,
+        jd_hash,
+        profile_hash,
+        analyzed_at: new Date().toISOString(),
+        total_fit_percent: percent,
+      }, { onConflict: 'deal_id' })
 
-        await supabase.from('job_fit_attributes').delete().eq('deal_id', d.deal_id)
-        const rows = (attrs || []).map((a: any) => {
-          const weight = paretoWeight(a.final_rank)
-          const fit_multiplier = multForColor(a.color)
-          const weighted_score = Math.round(weight * fit_multiplier)
-          return {
-            deal_id: d.deal_id,
-            attribute_name: a.attribute_name,
-            category: a.pillar,
-            jd_rank: a.final_rank,
-            title_rank: 0,
-            final_rank: a.final_rank,
-            weight,
-            fit_color: a.color,
-            fit_multiplier,
-            weighted_score,
-          }
-        })
-        if (rows.length) await supabase.from('job_fit_attributes').insert(rows)
-      }
-      results.push(baseResult)
+      await supabase.from('job_fit_attributes').delete().eq('deal_id', d.deal_id)
+      const rows = (attrs || []).map((a: any) => {
+        const weight = paretoWeight(a.final_rank)
+        const fit_multiplier = multForColor(a.color)
+        const weighted_score = Math.round(weight * fit_multiplier)
+        return {
+          deal_id: d.deal_id,
+          attribute_name: a.attribute_name,
+          category: a.pillar,
+          jd_rank: a.final_rank,
+          title_rank: 0,
+          final_rank: a.final_rank,
+          weight,
+          fit_color: a.color,
+          fit_multiplier,
+          weighted_score,
+        }
+      })
+      if (rows.length) await supabase.from('job_fit_attributes').insert(rows)
+
+      persisted.push({ deal_id: d.deal_id, count: rows.length, fit_score: scoreVal ?? null, model: ai.model || 'gpt-4o-mini' })
     }
 
-    // For preview flow, do not persist. Return results only.
-    return NextResponse.json({ results })
+    return NextResponse.json({ ok: true, persisted })
   } catch (e: any) {
     return NextResponse.json({ error: String(e?.message ?? e) }, { status: 500 })
   }

@@ -40,6 +40,7 @@ export default function AdminReferralsPage() {
   const [enrichMsg, setEnrichMsg] = useState<string>('')
   const [enrichOpts, setEnrichOpts] = useState<{ summary: boolean; fit: boolean; keywords: boolean; score: boolean }>({ summary: true, fit: true, keywords: true, score: true })
   const [debugMode, setDebugMode] = useState<boolean>(false)
+  const [saveToDb, setSaveToDb] = useState<boolean>(true)
   useEffect(() => {
     try {
       const sp = new URLSearchParams(window.location.search)
@@ -282,7 +283,7 @@ export default function AdminReferralsPage() {
     if (ids.length === 0) { setEnrichMsg('Select at least one job'); return }
     setEnriching(true)
     try {
-      const resp = await fetch('/api/admin/enrich-jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dealIds: ids, options: enrichOpts, preview: true, debug: debugMode }) })
+      const resp = await fetch('/api/admin/enrich-jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dealIds: ids, options: enrichOpts, preview: !saveToDb, debug: debugMode }) })
       const j = await resp.json()
       if (!resp.ok) throw new Error(j.error || 'Enrichment failed')
       const base = (j.results || []) as any[]
@@ -533,6 +534,7 @@ export default function AdminReferralsPage() {
           <label className="inline-flex items-center gap-2"><input type="checkbox" checked={enrichOpts.fit} onChange={(e)=> setEnrichOpts(s => ({ ...s, fit: e.target.checked }))} />Fit Summary</label>
           <label className="inline-flex items-center gap-2"><input type="checkbox" checked={enrichOpts.keywords} onChange={(e)=> setEnrichOpts(s => ({ ...s, keywords: e.target.checked }))} />Keywords</label>
           <label className="inline-flex items-center gap-2"><input type="checkbox" checked={enrichOpts.score} onChange={(e)=> setEnrichOpts(s => ({ ...s, score: e.target.checked }))} />Fit Score</label>
+          <label className="inline-flex items-center gap-2"><input type="checkbox" checked={saveToDb} onChange={(e)=> setSaveToDb(e.target.checked)} />Save to DB</label>
           <label className="inline-flex items-center gap-2"><input type="checkbox" checked={debugMode} onChange={(e)=> setDebugMode(e.target.checked)} />Debug</label>
         </div>
         <div className="md:col-span-4 flex items-end justify-end">
