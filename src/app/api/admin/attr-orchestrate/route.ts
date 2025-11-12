@@ -126,8 +126,10 @@ async function runPrompt3Refinement(supabase: ReturnType<typeof createClient>, d
     .eq('deal_id', dealId)
     .maybeSingle()
 
-  const job_description = (fit.data?.jd_text || deals.data?.submission_notes || '').toString()
-  if (!jd_hash) jd_hash = fit.data?.jd_hash || null
+  const fitData: any = (fit as any).data || {}
+  const dealsData: any = (deals as any).data || {}
+  const job_description = (fitData.jd_text || dealsData.submission_notes || '').toString()
+  if (!jd_hash) jd_hash = fitData.jd_hash || null
   if (!job_description || job_description.trim().length < 40) return { refined: 0, skipped: 'no jd' }
 
   const system = [
