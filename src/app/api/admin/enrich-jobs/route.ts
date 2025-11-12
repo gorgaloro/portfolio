@@ -209,14 +209,12 @@ export async function POST(req: Request) {
         fit_score: scoreVal ?? null,
         model: ai.model || 'gpt-4o-mini',
       }
-      if ((body as any).debug) {
-        baseResult.debug = {
-          raw: ai.raw,
-          usage: ai.usage,
-          model: ai.model,
-          prompt: { system, user },
-          resume_bytes: (resumeText || '').length,
-        }
+      baseResult.debug = {
+        raw: ai.raw,
+        usage: ai.usage,
+        model: ai.model,
+        prompt: { system, user },
+        resume_bytes: (resumeText || '').length,
       }
       results.push(baseResult)
     }
