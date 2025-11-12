@@ -43,18 +43,20 @@ export async function GET(req: Request) {
     if (attrs.error) return NextResponse.json({ error: attrs.error.message }, { status: 500 })
 
     // Only attempt to load overrides if we have valid hashes for this deal
-    let overrides: { data: any[]; error?: any } = { data: [] }
+    let overridesData: any[] = []
     if (hashes?.jd_hash && hashes?.profile_hash) {
-      overrides = await supabase
+      const overridesResp = await supabase
         .from('job_fit_overrides')
         .select('attribute_name, label, pillar, color, visible')
         .eq('deal_id', dealId)
         .eq('jd_hash', hashes.jd_hash)
         .eq('profile_hash', hashes.profile_hash)
+      if (overridesResp.error) return NextResponse.json({ error: overridesResp.error.message }, { status: 500 })
+      overridesData = overridesResp.data || []
     }
 
     const oMap = new Map<string, any>()
-    for (const o of overrides.data || []) oMap.set(o.attribute_name, o)
+    for (const o of overridesData) oMap.set(o.attribute_name, o)
 
     const rows = (attrs.data || []).map((a: any) => {
       const o = oMap.get(a.attribute_name)
