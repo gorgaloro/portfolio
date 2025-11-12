@@ -74,63 +74,77 @@ async function callOpenAIJSON(prompt: { system: string, user: string }) {
   }
 }
 
+async function runDeal(dealId: number) {
+  const supabase = getClient()
+
+  const dResp = await supabase
+    .from('hubspot_deals')
+    .select('deal_id, job_title, submission_notes')
+    .eq('deal_id', dealId)
+    .maybeSingle()
+  if (dResp.error || !dResp.data) return NextResponse.json({ error: dResp.error?.message || 'Deal not found' }, { status: 404 })
+
+  const fResp = await supabase
+    .from('job_fit_summary')
+    .select('deal_id, jd_text, narrative, total_fit_percent')
+    .eq('deal_id', dealId)
+    .maybeSingle()
+
+  const resumeText = await getResumeText()
+  const jdText: string = (fResp.data?.jd_text || dResp.data.submission_notes || '').toString()
+  const profileNarrative: string = (fResp.data?.narrative || resumeText || '').toString()
+  const priorScore: number | null = (typeof fResp.data?.total_fit_percent === 'number' && isFinite(fResp.data.total_fit_percent as number))
+    ? Math.max(0, Math.min(1, (fResp.data.total_fit_percent as number) / 100))
+    : null
+
+  const system = 'You are a concise AI assistant for job referral preparation. Always return STRICT JSON only.'
+  const priorNote = priorScore != null ? `\nReference prior fit score (optional): ${priorScore}` : ''
+  const user = `Create an enrichment JSON comparing the candidate profile to the job. Keep each summary under 120 words. Return ONLY strict JSON with keys: \n- jd_summary (string)\n- fit_summary (string)\n- keywords (object: {industry[], process[], technical[]} with up to 10 per pillar)\n- fit_score (number 0-1 or null)\n\nJob title: ${dResp.data.job_title || ''}\nCandidate Profile Narrative:\n${profileNarrative || '[none]'}\n\nJob text:\n${jdText || '[none]'}\n${priorNote}\n\nInstructions:\n- jd_summary: concise 2-4 sentence summary of the role in prose.\n- fit_summary: concise 2-4 sentences explicitly comparing the candidate profile to the job summary and likely keywords. Mention top strengths and any gaps.\n- keywords: extract and categorize important terms into industry, process, and technical; NO duplicates; cap 10 items per pillar; strings only.\n- fit_score: your estimate in [0,1] for how well the candidate fits the job.\n- No bullet lists. No URLs. Return ONLY valid JSON.`
+
+  const ai = await callOpenAIJSON({ system, user })
+  const obj = ai.data || {}
+
+  let scoreVal = obj.fit_score ?? null
+  if (typeof scoreVal !== 'number' || !isFinite(scoreVal)) scoreVal = priorScore
+
+  const debugRecord = {
+    deal_id: dResp.data.deal_id,
+    job_title: dResp.data.job_title || null,
+    model: ai.model || 'gpt-4o-mini',
+    usage: ai.usage || null,
+    raw: ai.raw || null,
+    parsed: obj || null,
+    prompt: { system, user },
+    resume_bytes: (resumeText || '').length,
+  }
+
+  await supabase.from('enrichment_debug').insert(debugRecord)
+
+  return NextResponse.json({
+    result: {
+      ...debugRecord,
+      fit_score: scoreVal ?? null,
+    }
+  })
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({})) as { dealId?: number }
     const dealId = Number(body.dealId)
     if (!Number.isFinite(dealId)) return NextResponse.json({ error: 'dealId required' }, { status: 400 })
+    return runDeal(dealId)
+  } catch (e: any) {
+    return NextResponse.json({ error: String(e?.message ?? e) }, { status: 500 })
+  }
+}
 
-    const supabase = getClient()
-
-    const dResp = await supabase
-      .from('hubspot_deals')
-      .select('deal_id, job_title, submission_notes')
-      .eq('deal_id', dealId)
-      .maybeSingle()
-    if (dResp.error || !dResp.data) return NextResponse.json({ error: dResp.error?.message || 'Deal not found' }, { status: 404 })
-
-    const fResp = await supabase
-      .from('job_fit_summary')
-      .select('deal_id, jd_text, narrative, total_fit_percent')
-      .eq('deal_id', dealId)
-      .maybeSingle()
-
-    const resumeText = await getResumeText()
-    const jdText: string = (fResp.data?.jd_text || dResp.data.submission_notes || '').toString()
-    const profileNarrative: string = (fResp.data?.narrative || resumeText || '').toString()
-    const priorScore: number | null = (typeof fResp.data?.total_fit_percent === 'number' && isFinite(fResp.data.total_fit_percent as number))
-      ? Math.max(0, Math.min(1, (fResp.data.total_fit_percent as number) / 100))
-      : null
-
-    const system = 'You are a concise AI assistant for job referral preparation. Always return STRICT JSON only.'
-    const priorNote = priorScore != null ? `\nReference prior fit score (optional): ${priorScore}` : ''
-    const user = `Create an enrichment JSON comparing the candidate profile to the job. Keep each summary under 120 words. Return ONLY strict JSON with keys: \n- jd_summary (string)\n- fit_summary (string)\n- keywords (object: {industry[], process[], technical[]} with up to 10 per pillar)\n- fit_score (number 0-1 or null)\n\nJob title: ${dResp.data.job_title || ''}\nCandidate Profile Narrative:\n${profileNarrative || '[none]'}\n\nJob text:\n${jdText || '[none]'}\n${priorNote}\n\nInstructions:\n- jd_summary: concise 2-4 sentence summary of the role in prose.\n- fit_summary: concise 2-4 sentences explicitly comparing the candidate profile to the job summary and likely keywords. Mention top strengths and any gaps.\n- keywords: extract and categorize important terms into industry, process, and technical; NO duplicates; cap 10 items per pillar; strings only.\n- fit_score: your estimate in [0,1] for how well the candidate fits the job.\n- No bullet lists. No URLs. Return ONLY valid JSON.`
-
-    const ai = await callOpenAIJSON({ system, user })
-    const obj = ai.data || {}
-
-    let scoreVal = obj.fit_score ?? null
-    if (typeof scoreVal !== 'number' || !isFinite(scoreVal)) scoreVal = priorScore
-
-    const debugRecord = {
-      deal_id: dResp.data.deal_id,
-      job_title: dResp.data.job_title || null,
-      model: ai.model || 'gpt-4o-mini',
-      usage: ai.usage || null,
-      raw: ai.raw || null,
-      parsed: obj || null,
-      prompt: { system, user },
-      resume_bytes: (resumeText || '').length,
-    }
-
-    await supabase.from('enrichment_debug').insert(debugRecord)
-
-    return NextResponse.json({
-      result: {
-        ...debugRecord,
-        fit_score: scoreVal ?? null,
-      }
-    })
+export async function GET(req: Request) {
+  try {
+    const url = new URL(req.url)
+    const dealId = Number(url.searchParams.get('dealId'))
+    if (!Number.isFinite(dealId)) return NextResponse.json({ error: 'dealId required' }, { status: 400 })
+    return runDeal(dealId)
   } catch (e: any) {
     return NextResponse.json({ error: String(e?.message ?? e) }, { status: 500 })
   }
