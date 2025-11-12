@@ -92,7 +92,7 @@ async function runPrompt2Categorization(supabase: ReturnType<typeof createClient
   }))
 
   const cleanRows = rows.filter(r => r.rank >= 1 && r.rank <= 30 && r.attribute)
-  if (cleanRows.length) await supabase.from('jd_attribute_categories').insert(cleanRows)
+  if (cleanRows.length) await (supabase.from('jd_attribute_categories') as any).insert(cleanRows as any[])
   return { categorized: cleanRows.length }
 }
 
@@ -154,7 +154,7 @@ async function runPrompt3Refinement(supabase: ReturnType<typeof createClient>, d
   }))
 
   const cleanRows = rows.filter(r => r.rank >= 1 && r.rank <= 30 && r.original_attribute && r.refined_attribute)
-  if (cleanRows.length) await supabase.from('jd_attribute_refined').insert(cleanRows)
+  if (cleanRows.length) await (supabase.from('jd_attribute_refined') as any).insert(cleanRows as any[])
   return { refined: cleanRows.length }
 }
 
@@ -210,7 +210,7 @@ async function runPrompt4Relevance(supabase: ReturnType<typeof createClient>, de
   }))
 
   const cleanRows = rows.filter(r => r.rank >= 1 && r.rank <= 30 && r.refined_attribute && Number.isFinite(r.relevance_score as any))
-  if (cleanRows.length) await supabase.from('jd_attribute_role_relevance').insert(cleanRows)
+  if (cleanRows.length) await (supabase.from('jd_attribute_role_relevance') as any).insert(cleanRows as any[])
   return { role_ranked: cleanRows.length }
 }
 
@@ -267,7 +267,7 @@ async function runForDeal(dealId: number) {
   }))
 
   await supabase.from('jd_attribute_ranking').delete().eq('deal_id', dealId)
-  if (rows.length) await supabase.from('jd_attribute_ranking').insert(rows)
+  if (rows.length) await (supabase.from('jd_attribute_ranking') as any).insert(rows as any[])
 
   let cat = { categorized: 0 }
   try {

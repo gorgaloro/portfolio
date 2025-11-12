@@ -88,7 +88,7 @@ async function runForDeal(dealId: number) {
   const cleanRows = rows
     .filter(r => r.rank >= 1 && r.rank <= 30 && r.attribute)
 
-  if (cleanRows.length) await supabase.from('jd_attribute_categories').insert(cleanRows)
+  if (cleanRows.length) await (supabase.from('jd_attribute_categories') as any).insert(cleanRows as any[])
 
   return NextResponse.json({ ok: true, deal_id: dealId, count: cleanRows.length })
 }

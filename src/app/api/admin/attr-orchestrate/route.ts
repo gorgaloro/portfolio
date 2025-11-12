@@ -96,8 +96,8 @@ async function runPrompt2Categorization(supabase: ReturnType<typeof createClient
     rationale: x.rationale ? String(x.rationale) : null,
   }))
 
-  const cleanRows = rows.filter(r => r.rank >= 1 && r.rank <= 30 && r.attribute)
-  if (cleanRows.length) await supabase.from('jd_attribute_categories').insert(cleanRows)
+  const cleanRows: any[] = rows.filter(r => r.rank >= 1 && r.rank <= 30 && r.attribute)
+  if (cleanRows.length) await (supabase.from('jd_attribute_categories') as any).insert(cleanRows as any[])
   return { categorized: cleanRows.length }
 }
 
@@ -163,8 +163,8 @@ async function runPrompt3Refinement(supabase: ReturnType<typeof createClient>, d
     rationale: x.rationale ? String(x.rationale) : null,
   }))
 
-  const cleanRows = rows.filter(r => r.rank >= 1 && r.rank <= 30 && r.original_attribute && r.refined_attribute)
-  if (cleanRows.length) await supabase.from('jd_attribute_refined').insert(cleanRows)
+  const cleanRows: any[] = rows.filter(r => r.rank >= 1 && r.rank <= 30 && r.original_attribute && r.refined_attribute)
+  if (cleanRows.length) await (supabase.from('jd_attribute_refined') as any).insert(cleanRows as any[])
   return { refined: cleanRows.length }
 }
 
@@ -219,8 +219,8 @@ async function runPrompt4Relevance(supabase: ReturnType<typeof createClient>, de
     rationale: x.rationale ? String(x.rationale) : null,
   }))
 
-  const cleanRows = rows.filter(r => r.rank >= 1 && r.rank <= 30 && r.refined_attribute && Number.isFinite(r.relevance_score as any))
-  if (cleanRows.length) await supabase.from('jd_attribute_role_relevance').insert(cleanRows)
+  const cleanRows: any[] = rows.filter(r => r.rank >= 1 && r.rank <= 30 && r.refined_attribute && Number.isFinite(r.relevance_score as any))
+  if (cleanRows.length) await (supabase.from('jd_attribute_role_relevance') as any).insert(cleanRows as any[])
   return { role_ranked: cleanRows.length }
 }
 
@@ -281,7 +281,7 @@ async function mapPromptsToJobFitAttributes(supabase: ReturnType<typeof createCl
       weighted_score,
     }
   })
-  if (rows.length) await supabase.from('job_fit_attributes').insert(rows)
+  if (rows.length) await (supabase.from('job_fit_attributes') as any).insert(rows as any[])
   return { attributes_upserted: rows.length }
 }
 
@@ -336,7 +336,7 @@ async function processDeal(dealId: number) {
     category: allowedCategories.has(String(x.category)) ? String(x.category) : 'Skill',
     rationale: x.rationale ? String(x.rationale) : null
   }))
-  if (rankRows.length) await supabase.from('jd_attribute_ranking').insert(rankRows)
+  if (rankRows.length) await (supabase.from('jd_attribute_ranking') as any).insert(rankRows as any[])
 
   let p2 = { categorized: 0 } as any
   try { p2 = await runPrompt2Categorization(supabase, dealId) } catch (e: any) { p2 = { categorized: 0, error: String(e?.message ?? e) } }
