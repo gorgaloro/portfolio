@@ -12,6 +12,76 @@ function getClient() {
   return createClient(url, key)
 }
 
+function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function normLabel(s: string) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9+ ]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function countInParagraphs(text: string, term: string) {
+  const paras = String(text || '').split(/\n\s*\n+/)
+  const headRe = /(responsibil|requirement|qualification|what you|you will|who you are|about you)/i
+  let base = 0
+  let boosted = 0
+  for (const p of paras) {
+    const re = new RegExp(`\\b${escapeRegExp(term)}\\b`, 'gi')
+    const matches = p.match(re)
+    if (!matches) continue
+    const n = matches.length
+    if (headRe.test(p)) boosted += n
+    else base += n
+  }
+  return { base, boosted }
+}
+
+function buildRankedAttributes(jdText: string, jobTitle: string | null, kw: { industry?: string[]; process?: string[]; technical?: string[] }) {
+  const items: Array<{ label: string; pillar: 'industry'|'process'|'technical'; score: number }> = []
+  const title = String(jobTitle || '')
+  const add = (list: any[], pillar: 'industry'|'process'|'technical') => {
+    const arr = Array.isArray(list) ? list.slice(0, 10) : []
+    for (const raw of arr) {
+      const label = String(raw || '').trim()
+      if (!label) continue
+      const { base, boosted } = countInParagraphs(jdText, label)
+      let s = base + 2 * boosted
+      if (title && new RegExp(`\\b${escapeRegExp(label)}\\b`, 'i').test(title)) s += 3
+      // slight pillar bias to surface actionable/technical items first
+      if (pillar === 'technical') s += 0.5
+      else if (pillar === 'process') s += 0.3
+      items.push({ label, pillar, score: s })
+    }
+  }
+  add(kw.industry || [], 'industry')
+  add(kw.process || [], 'process')
+  add(kw.technical || [], 'technical')
+
+  // Deduplicate by normalized label; if conflict, prefer process > technical > industry
+  const pickOrder: ('process'|'technical'|'industry')[] = ['process', 'technical', 'industry']
+  const byKey = new Map<string, { label: string; pillar: 'industry'|'process'|'technical'; score: number }>()
+  for (const it of items) {
+    const k = normLabel(it.label)
+    const prev = byKey.get(k)
+    if (!prev) { byKey.set(k, it); continue }
+    // prefer higher score or preferred pillar
+    const prevIdx = pickOrder.indexOf(prev.pillar as any)
+    const curIdx = pickOrder.indexOf(it.pillar as any)
+    if (it.score > prev.score + 0.1 || curIdx < prevIdx) {
+      byKey.set(k, it)
+    }
+  }
+
+  const unique = Array.from(byKey.values())
+  unique.sort((a, b) => (b.score - a.score) || a.pillar.localeCompare(b.pillar) || a.label.localeCompare(b.label))
+  // Assign final ranks 1..N
+  return unique.map((u, i) => ({ attribute_name: u.label, label: u.label, pillar: u.pillar, color: 'grey' as const, final_rank: i + 1, visible: true }))
+}
+
 function htmlToText(html: string): string {
   try {
     return html
@@ -116,14 +186,18 @@ export async function POST(req: Request) {
         : null
       const options = body.options || { summary: true, fit: true, keywords: true, score: true }
 
-      const system = 'You are a concise AI assistant for job referral preparation. Always return strict JSON only.'
+      const system = 'You are a concise AI assistant for job referral preparation. Always return STRICT JSON only.'
       const priorNote = priorScore != null ? `\nReference prior fit score (optional): ${priorScore}` : ''
-      const user = `Create an enrichment JSON comparing the candidate profile to the job. Keep each summary under 120 words. Return ONLY strict JSON with keys: jd_summary (string), fit_summary (string), keywords (object: {industry[], process[], technical[]}, up to 6 each), fit_score (number 0-1 or null).\n\nJob title: ${d.job_title || ''}\nCandidate Profile Narrative:\n${profileNarrative || '[none]'}\n\nJob text:\n${jdText || '[none]'}\n${priorNote}\n\nInstructions:\n- jd_summary: concise 2-4 sentence summary of the role in prose.\n- fit_summary: concise 2-4 sentences explicitly comparing the candidate profile to the job summary and likely keywords. Mention top strengths and any gaps.\n- keywords: extract and categorize important terms into industry, process, and technical.\n- fit_score: your estimate in [0,1] for how well the candidate fits the job.\n- No bullet lists. No URLs. Return ONLY valid JSON.`
+      const user = `Create an enrichment JSON comparing the candidate profile to the job. Keep each summary under 120 words. Return ONLY strict JSON with keys: \n- jd_summary (string)\n- fit_summary (string)\n- keywords (object: {industry[], process[], technical[]} with up to 10 per pillar)\n- fit_score (number 0-1 or null)\n\nJob title: ${d.job_title || ''}\nCandidate Profile Narrative:\n${profileNarrative || '[none]'}\n\nJob text:\n${jdText || '[none]'}\n${priorNote}\n\nInstructions:\n- jd_summary: concise 2-4 sentence summary of the role in prose.\n- fit_summary: concise 2-4 sentences explicitly comparing the candidate profile to the job summary and likely keywords. Mention top strengths and any gaps.\n- keywords: extract and categorize important terms into industry, process, and technical; NO duplicates; cap 10 items per pillar; strings only.\n- fit_score: your estimate in [0,1] for how well the candidate fits the job.\n- No bullet lists. No URLs. Return ONLY valid JSON.`
       const ai = await callOpenAIJSON({ system, user })
       const obj = ai.data || {}
 
       let scoreVal = options.score !== false ? (obj.fit_score ?? null) : null
       if (typeof scoreVal !== 'number' || !isFinite(scoreVal)) scoreVal = priorScore
+
+      // Build ranked attributes from keywords using JD salience and title boosts
+      const kw = (obj.keywords || {}) as { industry?: string[]; process?: string[]; technical?: string[] }
+      const attrs: any[] = buildRankedAttributes(jdText, d.job_title || null, kw)
 
       results.push({
         deal_id: d.deal_id,
@@ -131,6 +205,7 @@ export async function POST(req: Request) {
         jd_summary: options.summary !== false ? (obj.jd_summary || null) : null,
         fit_summary: options.fit !== false ? (obj.fit_summary || null) : null,
         keywords: options.keywords !== false ? (obj.keywords || { industry: [], process: [], technical: [] }) : { industry: [], process: [], technical: [] },
+        attributes: attrs,
         fit_score: scoreVal ?? null,
         model: ai.model || 'gpt-4o-mini',
       })

@@ -300,6 +300,10 @@ export default function AdminReferralsPage() {
             visible: a.visible !== false,
           }))
           if (apiAttrs.length > 0) return { ...r, attributes: apiAttrs }
+          // Prefer attributes provided by enrichment if present
+          if (Array.isArray(r.attributes) && r.attributes.length > 0) {
+            return { ...r, attributes: r.attributes }
+          }
           // Fallback: build from enrichment keywords if API returned none
           const kw = r.keywords || { industry: [], process: [], technical: [] }
           const built: any[] = []
@@ -309,7 +313,7 @@ export default function AdminReferralsPage() {
             for (const k of arr) {
               const label = String(k || '').trim()
               if (!label) continue
-              built.push({ attribute_name: label, label, pillar, color: 'yellow', final_rank: rank++, visible: true })
+              built.push({ attribute_name: label, label, pillar, color: 'grey', final_rank: rank++, visible: true })
             }
           })
           return { ...r, attributes: built }
@@ -324,7 +328,7 @@ export default function AdminReferralsPage() {
         for (const k of arr) {
           const label = String(k || '').trim()
           if (!label) continue
-          built.push({ attribute_name: label, label, pillar, color: 'yellow', final_rank: rank++, visible: true })
+          built.push({ attribute_name: label, label, pillar, color: 'grey', final_rank: rank++, visible: true })
         }
       })
       return { ...r, attributes: built }
