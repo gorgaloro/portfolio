@@ -24,12 +24,15 @@ export async function GET(req: Request) {
     if (!dealId) return NextResponse.json({ error: 'dealId required' }, { status: 400 })
 
     const supabase = getClient()
-    const hashes = await getHashes(supabase, dealId)
+    // Try to load summary and hashes, but do not fail if missing
     const summaryResp = await supabase
       .from('job_fit_summary')
       .select('deal_id, total_fit_percent, industry_fit_percent, process_fit_percent, technical_fit_percent, narrative, jd_hash, profile_hash, analyzed_at')
       .eq('deal_id', dealId)
       .maybeSingle()
+    const hashes = summaryResp.data
+      ? { jd_hash: summaryResp.data.jd_hash as string | null, profile_hash: summaryResp.data.profile_hash as string | null }
+      : null
 
     const attrs = await supabase
       .from('job_fit_attributes')
@@ -39,12 +42,16 @@ export async function GET(req: Request) {
 
     if (attrs.error) return NextResponse.json({ error: attrs.error.message }, { status: 500 })
 
-    const overrides = await supabase
-      .from('job_fit_overrides')
-      .select('attribute_name, label, pillar, color, visible')
-      .eq('deal_id', dealId)
-      .eq('jd_hash', hashes.jd_hash)
-      .eq('profile_hash', hashes.profile_hash)
+    // Only attempt to load overrides if we have valid hashes for this deal
+    let overrides: { data: any[]; error?: any } = { data: [] }
+    if (hashes?.jd_hash && hashes?.profile_hash) {
+      overrides = await supabase
+        .from('job_fit_overrides')
+        .select('attribute_name, label, pillar, color, visible')
+        .eq('deal_id', dealId)
+        .eq('jd_hash', hashes.jd_hash)
+        .eq('profile_hash', hashes.profile_hash)
+    }
 
     const oMap = new Map<string, any>()
     for (const o of overrides.data || []) oMap.set(o.attribute_name, o)
@@ -67,8 +74,8 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       deal_id: dealId,
-      jd_hash: hashes.jd_hash,
-      profile_hash: hashes.profile_hash,
+      jd_hash: hashes?.jd_hash ?? null,
+      profile_hash: hashes?.profile_hash ?? null,
       summary: summaryResp.data || null,
       attributes: rows
     })
