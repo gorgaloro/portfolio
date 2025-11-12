@@ -359,7 +359,16 @@ export default function AdminReferralsPage() {
       })
       const j = await resp.json()
       if (!resp.ok) throw new Error(j.error || 'Recalc failed')
-      if (typeof j.fit_score === 'number') updateEnriched(dealId, { fit_score: j.fit_score })
+      const patch: any = {}
+      if (typeof j.fit_score === 'number') patch.fit_score = j.fit_score
+      if (Array.isArray(j.attributes) && (r.attributes || []).length > 0) {
+        const mapped = (r.attributes || []).map((a: any) => {
+          const hit = j.attributes.find((x: any) => (x.label || '').toString().toLowerCase() === (a.label || '').toString().toLowerCase())
+          return hit && hit.auto_color ? { ...a, color: hit.auto_color } : a
+        })
+        patch.attributes = mapped
+      }
+      if (Object.keys(patch).length) updateEnriched(dealId, patch)
     } catch (e) {
       // surface? keep simple
     }
@@ -369,14 +378,24 @@ export default function AdminReferralsPage() {
     for (const r of items) {
       if (typeof r.fit_score === 'number' && isFinite(r.fit_score)) continue
       const attrs = Array.isArray(r.attributes) ? r.attributes : []
-      if (attrs.length === 0) continue
       try {
         const resp = await fetch('/api/admin/recalc-fit-score', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ jd_summary: r.jd_summary, fit_summary: r.fit_summary, attributes: attrs })
         })
         const j = await resp.json()
-        if (resp.ok && typeof j.fit_score === 'number') updateEnriched(r.deal_id, { fit_score: j.fit_score })
+        if (resp.ok) {
+          const patch: any = {}
+          if (typeof j.fit_score === 'number') patch.fit_score = j.fit_score
+          if (Array.isArray(j.attributes) && (r.attributes || []).length > 0) {
+            const mapped = (r.attributes || []).map((a: any) => {
+              const hit = j.attributes.find((x: any) => (x.label || '').toString().toLowerCase() === (a.label || '').toString().toLowerCase())
+              return hit && hit.auto_color ? { ...a, color: hit.auto_color } : a
+            })
+            patch.attributes = mapped
+          }
+          if (Object.keys(patch).length) updateEnriched(r.deal_id, patch)
+        }
       } catch {}
     }
   }

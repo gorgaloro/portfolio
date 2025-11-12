@@ -2,12 +2,49 @@ export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import fs from 'node:fs/promises'
+import path from 'node:path'
 
 function getClient() {
   const url = process.env.SUPABASE_URL || process.env.URL || ''
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
   if (!url || !key) throw new Error('Missing Supabase server env')
   return createClient(url, key)
+}
+
+function htmlToText(html: string): string {
+  try {
+    return html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  } catch { return html }
+}
+
+async function getResumeText(): Promise<string> {
+  try {
+    if (process.env.RESUME_TEXT && process.env.RESUME_TEXT.trim().length > 0) return process.env.RESUME_TEXT
+    const url = process.env.RESUME_URL
+    if (url) {
+      try {
+        const r = await fetch(url)
+        if (r.ok) return htmlToText(await r.text())
+      } catch {}
+    }
+    try {
+      const p = path.join(process.cwd(), 'Allen-Walker-Resume.md')
+      const t = await fs.readFile(p, 'utf8')
+      if (t && t.trim().length > 0) return t
+    } catch {}
+    // Default public profile fallback
+    try {
+      const r = await fetch('https://www.allenwalker.info/about')
+      if (r.ok) return htmlToText(await r.text())
+    } catch {}
+  } catch {}
+  return ''
 }
 
 async function callOpenAIJSON(prompt: { system: string, user: string }) {
@@ -69,10 +106,11 @@ export async function POST(req: Request) {
     if (!fitResp.error) for (const r of (fitResp.data || [])) fitMap.set(r.deal_id, r)
 
     const results: any[] = []
+    const resumeText = await getResumeText()
     for (const d of dealsResp.data || []) {
       const existing = fitMap.get(d.deal_id)
       const jdText: string = (existing?.jd_text || d.submission_notes || '').toString()
-      const profileNarrative: string = (existing?.narrative || '').toString()
+      const profileNarrative: string = (existing?.narrative || resumeText || '').toString()
       const priorScore: number | null = (typeof existing?.total_fit_percent === 'number' && isFinite(existing.total_fit_percent))
         ? Math.max(0, Math.min(1, (existing.total_fit_percent as number) / 100))
         : null
