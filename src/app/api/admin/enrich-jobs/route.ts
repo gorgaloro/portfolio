@@ -140,10 +140,10 @@ async function callOpenAIJSON(prompt: { system: string, user: string }) {
   // try parse as JSON; if wrapped or with code fences, strip
   const cleaned = content.replace(/^```(?:json)?\n?|\n?```$/g, '')
   try {
-    return { data: JSON.parse(cleaned), usage: json?.usage, model: json?.model }
+    return { data: JSON.parse(cleaned), usage: json?.usage, model: json?.model, raw: content }
   } catch {
     // fallback minimal shape
-    return { data: { jd_summary: content, fit_summary: '', keywords: { industry: [], process: [], technical: [] }, fit_score: null }, usage: json?.usage, model: json?.model }
+    return { data: { jd_summary: content, fit_summary: '', keywords: { industry: [], process: [], technical: [] }, fit_score: null }, usage: json?.usage, model: json?.model, raw: content }
   }
 }
 
@@ -199,7 +199,7 @@ export async function POST(req: Request) {
       const kw = (obj.keywords || {}) as { industry?: string[]; process?: string[]; technical?: string[] }
       const attrs: any[] = buildRankedAttributes(jdText, d.job_title || null, kw)
 
-      results.push({
+      const baseResult: any = {
         deal_id: d.deal_id,
         job_title: d.job_title || null,
         jd_summary: options.summary !== false ? (obj.jd_summary || null) : null,
@@ -208,7 +208,17 @@ export async function POST(req: Request) {
         attributes: attrs,
         fit_score: scoreVal ?? null,
         model: ai.model || 'gpt-4o-mini',
-      })
+      }
+      if ((body as any).debug) {
+        baseResult.debug = {
+          raw: ai.raw,
+          usage: ai.usage,
+          model: ai.model,
+          prompt: { system, user },
+          resume_bytes: (resumeText || '').length,
+        }
+      }
+      results.push(baseResult)
     }
 
     // For preview flow, do not persist. Return results only.

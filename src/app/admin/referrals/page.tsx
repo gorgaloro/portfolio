@@ -39,6 +39,16 @@ export default function AdminReferralsPage() {
   const [enriching, setEnriching] = useState(false)
   const [enrichMsg, setEnrichMsg] = useState<string>('')
   const [enrichOpts, setEnrichOpts] = useState<{ summary: boolean; fit: boolean; keywords: boolean; score: boolean }>({ summary: true, fit: true, keywords: true, score: true })
+  const [debugMode, setDebugMode] = useState<boolean>(false)
+  useEffect(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search)
+      const dbg = sp.get('debug')
+      if (dbg && (dbg === '1' || dbg.toLowerCase() === 'true')) {
+        setDebugMode(true)
+      }
+    } catch {}
+  }, [])
   const [enrichResults, setEnrichResults] = useState<Array<{
     deal_id: number
     job_title?: string | null
@@ -47,6 +57,7 @@ export default function AdminReferralsPage() {
     keywords?: { industry?: string[]; process?: string[]; technical?: string[] }
     fit_score?: number | null
     attributes?: Array<{ attribute_name: string; label: string; pillar: 'industry'|'process'|'technical'; color: 'green'|'yellow'|'grey'; final_rank: number; visible?: boolean }>
+    debug?: any
   }>>([])
 
   // Typeahead search
@@ -271,7 +282,7 @@ export default function AdminReferralsPage() {
     if (ids.length === 0) { setEnrichMsg('Select at least one job'); return }
     setEnriching(true)
     try {
-      const resp = await fetch('/api/admin/enrich-jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dealIds: ids, options: enrichOpts, preview: true }) })
+      const resp = await fetch('/api/admin/enrich-jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dealIds: ids, options: enrichOpts, preview: true, debug: debugMode }) })
       const j = await resp.json()
       if (!resp.ok) throw new Error(j.error || 'Enrichment failed')
       const base = (j.results || []) as any[]
@@ -522,6 +533,7 @@ export default function AdminReferralsPage() {
           <label className="inline-flex items-center gap-2"><input type="checkbox" checked={enrichOpts.fit} onChange={(e)=> setEnrichOpts(s => ({ ...s, fit: e.target.checked }))} />Fit Summary</label>
           <label className="inline-flex items-center gap-2"><input type="checkbox" checked={enrichOpts.keywords} onChange={(e)=> setEnrichOpts(s => ({ ...s, keywords: e.target.checked }))} />Keywords</label>
           <label className="inline-flex items-center gap-2"><input type="checkbox" checked={enrichOpts.score} onChange={(e)=> setEnrichOpts(s => ({ ...s, score: e.target.checked }))} />Fit Score</label>
+          <label className="inline-flex items-center gap-2"><input type="checkbox" checked={debugMode} onChange={(e)=> setDebugMode(e.target.checked)} />Debug</label>
         </div>
         <div className="md:col-span-4 flex items-end justify-end">
           <button onClick={enrichSelected} disabled={enriching || Object.values(checked).every(v => !v)} className="rounded-md bg-emerald-600 px-4 py-2 text-white text-sm disabled:opacity-50">{enriching ? 'Enriching…' : 'Enrich Selected Jobs'}</button>
@@ -590,6 +602,24 @@ export default function AdminReferralsPage() {
               <div className="mt-4 flex justify-end">
                 <button onClick={() => recalcFit(r.deal_id)} className="rounded-md border px-3 py-1 text-sm">Recalculate Fit Score</button>
               </div>
+
+              {r.debug && (
+                <details className="mt-3 text-xs text-zinc-600">
+                  <summary className="cursor-pointer">Debug</summary>
+                  <div className="mt-2">
+                    <div className="font-medium">Model</div>
+                    <pre className="whitespace-pre-wrap break-words">{String(r.debug?.model || '')}</pre>
+                  </div>
+                  <div className="mt-2">
+                    <div className="font-medium">Usage</div>
+                    <pre className="whitespace-pre-wrap break-words">{JSON.stringify(r.debug?.usage || {}, null, 2)}</pre>
+                  </div>
+                  <div className="mt-2">
+                    <div className="font-medium">Raw Content</div>
+                    <pre className="whitespace-pre-wrap break-words">{String(r.debug?.raw || '')}</pre>
+                  </div>
+                </details>
+              )}
             </div>
           ))}
         </div>
