@@ -36,6 +36,11 @@ export default function AdminReferralsPage() {
   const [companyDeals, setCompanyDeals] = useState<Array<{ deal_id: number; job_title?: string; dealname?: string; job_url?: string | null; pipeline?: string | null; dealstage?: string | null }>>([])
   const [checked, setChecked] = useState<Record<number, boolean>>({})
 
+  const [enriching, setEnriching] = useState(false)
+  const [enrichMsg, setEnrichMsg] = useState<string>('')
+  const [enrichOpts, setEnrichOpts] = useState<{ summary: boolean; fit: boolean; keywords: boolean; score: boolean }>({ summary: true, fit: true, keywords: true, score: true })
+  const [enrichResults, setEnrichResults] = useState<Array<{ deal_id: number; job_title?: string | null; jd_summary?: string | null; fit_summary?: string | null; keywords?: { industry?: string[]; process?: string[]; technical?: string[] }; fit_score?: number | null }>>([])
+
   // Typeahead search
   useEffect(() => {
     const t = setTimeout(() => {
@@ -251,6 +256,25 @@ export default function AdminReferralsPage() {
     }
   }
 
+  async function enrichSelected() {
+    const ids = Object.entries(checked).filter(([, v]) => v).map(([k]) => Number(k))
+    setEnrichMsg('')
+    setEnrichResults([])
+    if (ids.length === 0) { setEnrichMsg('Select at least one job'); return }
+    setEnriching(true)
+    try {
+      const resp = await fetch('/api/admin/enrich-jobs', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dealIds: ids, options: enrichOpts, preview: true }) })
+      const j = await resp.json()
+      if (!resp.ok) throw new Error(j.error || 'Enrichment failed')
+      setEnrichResults(j.results || [])
+      setEnrichMsg(`Enriched ${Array.isArray(j.results) ? j.results.length : 0} job(s)`) 
+    } catch (e: any) {
+      setEnrichMsg(e.message || String(e))
+    } finally {
+      setEnriching(false)
+    }
+  }
+
   function sanitizeIntro(t: string) {
     let s = String(t || '')
     s = s.replace(/^(\s*(hi|hello|hey)[^\n]*\n+)/i, '')
@@ -357,82 +381,57 @@ export default function AdminReferralsPage() {
         <div className="md:col-span-4 flex items-end gap-2">
           <button onClick={warmLoad} disabled={!companyId || warmLoading} className="rounded-md border border-zinc-300 px-3 py-2 text-sm">Load</button>
           <button onClick={() => warmGenerate(false)} disabled={!companyId || warmLoading} className="rounded-md bg-emerald-600 text-white px-3 py-2 text-sm">{warmLoading ? 'Working…' : 'Generate'}</button>
-          <button onClick={warmSave} disabled={!companyId || warmLoading} className="rounded-md bg-zinc-900 text-white px-3 py-2 text-sm">Save</button>
         </div>
       </div>
       {warmMsg && <div className="text-sm text-zinc-500">{warmMsg}</div>}
       <textarea value={warmIntro} onChange={(e) => setWarmIntro(e.target.value)} rows={6} placeholder="Generated two-paragraph intro will appear here" className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm" />
 
-      <h1 className="text-2xl font-semibold">Admin: Referral Attributes</h1>
-        <div className="flex items-end gap-3">
-          <div>
-            <label className="block text-sm text-zinc-600">Deal ID</label>
-            <input value={dealId} onChange={(e) => setDealId(e.target.value)} placeholder="196977522406" className="mt-1 w-64 rounded-md border border-zinc-300 px-3 py-2 text-sm" />
-          </div>
-          <button onClick={load} disabled={!dealId || loading} className="rounded-md bg-emerald-600 px-4 py-2 text-white text-sm disabled:opacity-50">{loading ? 'Loading…' : 'Load'}</button>
-          {msg && <div className="text-sm text-zinc-500">{msg}</div>}
+      <h1 className="text-2xl font-semibold">Job Enrichment</h1>
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+        <div className="md:col-span-8 flex flex-wrap gap-4 text-sm">
+          <label className="inline-flex items-center gap-2"><input type="checkbox" checked={enrichOpts.summary} onChange={(e)=> setEnrichOpts(s => ({ ...s, summary: e.target.checked }))} />JD Summary</label>
+          <label className="inline-flex items-center gap-2"><input type="checkbox" checked={enrichOpts.fit} onChange={(e)=> setEnrichOpts(s => ({ ...s, fit: e.target.checked }))} />Fit Summary</label>
+          <label className="inline-flex items-center gap-2"><input type="checkbox" checked={enrichOpts.keywords} onChange={(e)=> setEnrichOpts(s => ({ ...s, keywords: e.target.checked }))} />Keywords</label>
+          <label className="inline-flex items-center gap-2"><input type="checkbox" checked={enrichOpts.score} onChange={(e)=> setEnrichOpts(s => ({ ...s, score: e.target.checked }))} />Fit Score</label>
         </div>
-
-        {rows && (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="text-left text-zinc-500">
-                  <th className="py-2 pr-4">Attribute</th>
-                  <th className="py-2 pr-4">Pillar</th>
-                  <th className="py-2 pr-4">Color</th>
-                  <th className="py-2 pr-4">Visible</th>
-                  <th className="py-2 pr-4">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r, i) => (
-                  <tr key={r.attribute_name} className="border-t border-zinc-100">
-                    <td className="py-2 pr-4">
-                      <input
-                        className="w-80 rounded-md border border-zinc-300 px-2 py-1"
-                        value={r.label}
-                        onChange={(e) => update(i, { label: e.target.value })}
-                      />
-                      <div className="text-xs text-zinc-400">Base: {r.attribute_name}</div>
-                    </td>
-                    <td className="py-2 pr-4">
-                      <select
-                        value={r.pillar}
-                        onChange={(e) => update(i, { pillar: e.target.value as AttrRow['pillar'] })}
-                        className="rounded-md border border-zinc-300 px-2 py-1"
-                      >
-                        <option value="industry">Industry</option>
-                        <option value="process">Process</option>
-                        <option value="technical">Technical</option>
-                      </select>
-                    </td>
-                    <td className="py-2 pr-4">
-                      <select
-                        value={r.color}
-                        onChange={(e) => update(i, { color: e.target.value as AttrRow['color'] })}
-                        className="rounded-md border border-zinc-300 px-2 py-1"
-                      >
-                        <option value="green">Green</option>
-                        <option value="yellow">Yellow</option>
-                        <option value="grey">Grey</option>
-                      </select>
-                    </td>
-                    <td className="py-2 pr-4">
-                      <input type="checkbox" checked={r.visible} onChange={(e) => update(i, { visible: e.target.checked })} />
-                    </td>
-                    <td className="py-2 pr-4 space-x-2">
-                      <button onClick={() => save(i)} className="rounded-md bg-zinc-900 text-white px-3 py-1 text-xs">Save</button>
-                      <button onClick={() => reset(i)} className="rounded-md border border-zinc-300 px-3 py-1 text-xs">Reset</button>
-                      <button onClick={() => suggest(i)} className="rounded-md border border-emerald-600 text-emerald-700 px-3 py-1 text-xs">Suggest</button>
-                      {r.has_override && <span className="text-xs text-emerald-600">overridden</span>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <div className="md:col-span-4 flex items-end justify-end">
+          <button onClick={enrichSelected} disabled={enriching || Object.values(checked).every(v => !v)} className="rounded-md bg-emerald-600 px-4 py-2 text-white text-sm disabled:opacity-50">{enriching ? 'Enriching…' : 'Enrich Selected Jobs'}</button>
+        </div>
+      </div>
+      {enrichMsg && <div className="text-sm text-zinc-500">{enrichMsg}</div>}
+      {enrichResults.length > 0 && (
+        <div className="space-y-4">
+          {enrichResults.map((r) => (
+            <div key={r.deal_id} className="rounded-md border border-zinc-200 p-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-emerald-700 font-medium">{r.job_title || `#${r.deal_id}`}</div>
+                  <div className="text-xs text-zinc-400">#{r.deal_id}</div>
+                </div>
+                {typeof r.fit_score === 'number' && <div className="text-sm text-zinc-600">{Math.round(r.fit_score * 100)}%</div>}
+              </div>
+              {r.jd_summary && (<div className="mt-3 text-sm"><div className="font-medium">Job Description Summary</div><p className="mt-1 text-zinc-700">{r.jd_summary}</p></div>)}
+              {r.fit_summary && (<div className="mt-3 text-sm"><div className="font-medium">Fit Summary</div><p className="mt-1 text-zinc-700">{r.fit_summary}</p></div>)}
+              {r.keywords && (
+                <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <div className="text-xs text-zinc-500">Industry</div>
+                    <div className="mt-1 flex flex-wrap gap-1">{(r.keywords.industry || []).map((k) => (<span key={k} className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5 text-xs">{k}</span>))}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-zinc-500">Process</div>
+                    <div className="mt-1 flex flex-wrap gap-1">{(r.keywords.process || []).map((k) => (<span key={k} className="inline-flex items-center rounded-full bg-yellow-50 text-yellow-700 px-2 py-0.5 text-xs">{k}</span>))}</div>
+                  </div>
+                  <div>
+                    <div className="text-xs text-zinc-500">Technical</div>
+                    <div className="mt-1 flex flex-wrap gap-1">{(r.keywords.technical || []).map((k) => (<span key={k} className="inline-flex items-center rounded-full bg-zinc-100 text-zinc-700 px-2 py-0.5 text-xs">{k}</span>))}</div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
       </div>
     </AdminShell>
   )
