@@ -8,7 +8,7 @@ import crypto from 'node:crypto'
 
 function getClient() {
   const url = process.env.SUPABASE_URL || process.env.URL || ''
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY || ''
   if (!url || !key) throw new Error('Missing Supabase server env')
   return createClient(url, key)
 }
@@ -232,11 +232,13 @@ export async function POST(req: Request) {
         prompt: { system, user },
         resume_bytes: (resumeText || '').length,
       }
+      let persist_info: any = { attempted: false }
       if (!(body as any).preview) {
+        persist_info.attempted = true
         const jd_hash = sha256Hex(jdText)
         const profile_hash = sha256Hex(profileNarrative)
         const percent = (typeof scoreVal === 'number' && isFinite(scoreVal)) ? Math.round(Math.max(0, Math.min(1, scoreVal)) * 100) : null
-        await supabase.from('job_fit_summary').upsert({
+        const up1 = await supabase.from('job_fit_summary').upsert({
           deal_id: d.deal_id,
           job_title: d.job_title || null,
           jd_text: jdText || null,
@@ -247,8 +249,11 @@ export async function POST(req: Request) {
           analyzed_at: new Date().toISOString(),
           total_fit_percent: percent,
         }, { onConflict: 'deal_id' })
+        persist_info.summary_upsert_ok = !up1.error
+        if (up1.error) persist_info.summary_error = up1.error.message
 
-        await supabase.from('job_fit_attributes').delete().eq('deal_id', d.deal_id)
+        const del = await supabase.from('job_fit_attributes').delete().eq('deal_id', d.deal_id)
+        if (del.error) persist_info.delete_error = del.error.message
         const rows = (attrs || []).map((a: any) => {
           const weight = paretoWeight(a.final_rank)
           const fit_multiplier = multForColor(a.color)
@@ -266,9 +271,14 @@ export async function POST(req: Request) {
             weighted_score,
           }
         })
-        if (rows.length) await supabase.from('job_fit_attributes').insert(rows)
+        persist_info.attributes_count = rows.length
+        if (rows.length) {
+          const ins = await supabase.from('job_fit_attributes').insert(rows)
+          persist_info.attributes_insert_ok = !ins.error
+          if (ins.error) persist_info.attributes_error = ins.error.message
+        }
       }
-      results.push(baseResult)
+      results.push({ ...baseResult, persist_info })
     }
 
     // For preview flow, do not persist. Return results only.
