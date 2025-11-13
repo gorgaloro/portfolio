@@ -55,7 +55,8 @@ async function runForDeal(dealId: number) {
       .select('job_title')
       .eq('deal_id', dealId)
       .maybeSingle()
-    if (!d.error) job_title = d.data?.job_title || ''
+    const dData: any = (d as any).data || {}
+    if (!d.error) job_title = dData.job_title || ''
   }
 
   const system = [
