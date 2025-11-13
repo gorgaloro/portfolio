@@ -56,7 +56,7 @@ async function runPrompt2Categorization(supabase: ReturnType<typeof createClient
     .eq('deal_id', dealId)
     .order('rank', { ascending: true })
   if (prior.error) throw new Error(prior.error.message)
-  const items = prior.data || []
+  const items: any[] = (prior.data as any[]) || []
   if (items.length === 0) return { categorized: 0 }
 
   const job_title = items[0]?.job_title || ''
@@ -103,7 +103,7 @@ async function runPrompt3Refinement(supabase: ReturnType<typeof createClient>, d
     .eq('deal_id', dealId)
     .order('rank', { ascending: true })
   if (cat.error) throw new Error(cat.error.message)
-  const items = cat.data || []
+  const items: any[] = (cat.data as any[]) || []
   if (items.length === 0) return { refined: 0 }
 
   const job_title = items[0]?.job_title || ''
@@ -167,7 +167,7 @@ async function runPrompt4Relevance(supabase: ReturnType<typeof createClient>, de
     .eq('deal_id', dealId)
     .order('rank', { ascending: true })
   if (refined.error) throw new Error(refined.error.message)
-  const items = refined.data || []
+  const items: any[] = (refined.data as any[]) || []
   if (items.length === 0) return { role_ranked: 0 }
 
   let job_title: string = items[0]?.job_title || ''
