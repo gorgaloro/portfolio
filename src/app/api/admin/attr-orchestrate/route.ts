@@ -235,14 +235,14 @@ async function mapPromptsToJobFitAttributes(supabase: ReturnType<typeof createCl
     .eq('deal_id', dealId)
     .order('rank', { ascending: true })
   if (refined.error) throw new Error(refined.error.message)
-  const refItems = refined.data || []
+  const refItems: any[] = (refined.data as any[]) || []
 
   const role = await supabase
     .from('jd_attribute_role_relevance')
     .select('rank, refined_attribute')
     .eq('deal_id', dealId)
   if (role.error) throw new Error(role.error.message)
-  const roleItems = role.data || []
+  const roleItems: any[] = (role.data as any[]) || []
 
   const titleRankByLabel = new Map<string, number>()
   for (const r of roleItems) titleRankByLabel.set(String(r.refined_attribute).toLowerCase(), Number(r.rank))
