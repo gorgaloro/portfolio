@@ -49,7 +49,7 @@ function normalizeFitCategory(s: string): 'Industry Fit'|'Process Fit'|'Technica
   return 'Technical Fit'
 }
 
-async function runPrompt2Categorization(supabase: ReturnType<typeof createClient>, dealId: number) {
+async function runPrompt2Categorization(supabase: any, dealId: number) {
   const prior = await supabase
     .from('jd_attribute_ranking')
     .select('deal_id, job_title, jd_hash, rank, attribute, category')
@@ -96,7 +96,7 @@ async function runPrompt2Categorization(supabase: ReturnType<typeof createClient
   return { categorized: cleanRows.length }
 }
 
-async function runPrompt3Refinement(supabase: ReturnType<typeof createClient>, dealId: number) {
+async function runPrompt3Refinement(supabase: any, dealId: number) {
   const cat = await supabase
     .from('jd_attribute_categories')
     .select('deal_id, job_title, jd_hash, rank, attribute, fit_category')
@@ -160,7 +160,7 @@ async function runPrompt3Refinement(supabase: ReturnType<typeof createClient>, d
   return { refined: cleanRows.length }
 }
 
-async function runPrompt4Relevance(supabase: ReturnType<typeof createClient>, dealId: number) {
+async function runPrompt4Relevance(supabase: any, dealId: number) {
   const refined = await supabase
     .from('jd_attribute_refined')
     .select('deal_id, job_title, jd_hash, rank, refined_attribute')
