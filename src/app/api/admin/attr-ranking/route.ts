@@ -221,7 +221,8 @@ async function runForDeal(dealId: number) {
     .select('deal_id, job_title, submission_notes')
     .eq('deal_id', dealId)
     .maybeSingle()
-  if (deal.error || !deal.data) return NextResponse.json({ error: deal.error?.message || 'Deal not found' }, { status: 404 })
+  const dealData: any = (deal as any).data || {}
+  if (deal.error || !dealData) return NextResponse.json({ error: deal.error?.message || 'Deal not found' }, { status: 404 })
 
   const js = await supabase
     .from('job_fit_summary')
@@ -229,8 +230,10 @@ async function runForDeal(dealId: number) {
     .eq('deal_id', dealId)
     .maybeSingle()
 
-  const job_title = deal.data.job_title || ''
-  const job_description = (js.data?.jd_text || deal.data.submission_notes || '').toString()
+  const jsData: any = (js as any).data || {}
+
+  const job_title = dealData.job_title || ''
+  const job_description = (jsData.jd_text || dealData.submission_notes || '').toString()
   if (!job_description || job_description.trim().length < 40) return NextResponse.json({ error: 'No job description text available' }, { status: 400 })
 
   const system = [
