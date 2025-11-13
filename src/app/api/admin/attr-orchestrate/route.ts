@@ -307,7 +307,7 @@ async function processDeal(dealId: number) {
 
   const job_title = dealData.job_title || ''
   const job_description = (jsData.jd_text || dealData.submission_notes || '').toString()
-  if (!job_description || job_description.trim().length < 40) return { deal_id: dealId, error: 'No job description text available' }
+  if (!job_description || job_description.trim().length < 40) return { deal_id: dealId, job_title, status: 'skipped', reason: 'job_description_missing' }
 
   const system = [
     'You are an experienced technical recruiter and hiring manager specializing in mid-to-senior roles.',
@@ -345,14 +345,25 @@ async function processDeal(dealId: number) {
 
   let p2 = { categorized: 0 } as any
   try { p2 = await runPrompt2Categorization(supabase, dealId) } catch (e: any) { p2 = { categorized: 0, error: String(e?.message ?? e) } }
+  if (!p2 || Number(p2.categorized || 0) <= 0) {
+    return { deal_id: dealId, job_title, status: 'skipped', reason: 'prompt2_empty', prompt1: rankRows.length, prompt2: p2 }
+  }
+
   let p3 = { refined: 0 } as any
   try { p3 = await runPrompt3Refinement(supabase, dealId) } catch (e: any) { p3 = { refined: 0, error: String(e?.message ?? e) } }
+  if (!p3 || Number(p3.refined || 0) <= 0) {
+    return { deal_id: dealId, job_title, status: 'skipped', reason: 'no_refined_attributes', prompt1: rankRows.length, prompt2: p2, prompt3: p3 }
+  }
+
   let p4 = { role_ranked: 0 } as any
   try { p4 = await runPrompt4Relevance(supabase, dealId) } catch (e: any) { p4 = { role_ranked: 0, error: String(e?.message ?? e) } }
   let mapped = { attributes_upserted: 0 } as any
   try { mapped = await mapPromptsToJobFitAttributes(supabase, dealId) } catch (e: any) { mapped = { attributes_upserted: 0, error: String(e?.message ?? e) } }
+  if (!mapped || Number(mapped.attributes_upserted || 0) <= 0) {
+    return { deal_id: dealId, job_title, status: 'skipped', reason: 'no_attributes_mapped', prompt1: rankRows.length, prompt2: p2, prompt3: p3, prompt4: p4, mapped }
+  }
 
-  return { deal_id: dealId, prompt1: rankRows.length, prompt2: p2, prompt3: p3, prompt4: p4, mapped }
+  return { deal_id: dealId, job_title, status: 'ok', prompt1: rankRows.length, prompt2: p2, prompt3: p3, prompt4: p4, mapped }
 }
 
 export async function GET(req: Request) {

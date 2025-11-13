@@ -58,6 +58,8 @@ export default function AdminReferralsPage() {
     keywords?: { industry?: string[]; process?: string[]; technical?: string[] }
     fit_score?: number | null
     attributes?: Array<{ attribute_name: string; label: string; pillar: 'industry'|'process'|'technical'; color: 'green'|'yellow'|'grey'; final_rank: number; visible?: boolean }>
+    status?: 'ok'|'skipped'
+    reason?: string | null
     debug?: any
   }>>([])
 
@@ -288,7 +290,12 @@ export default function AdminReferralsPage() {
       const j = await resp.json()
       if (!resp.ok) throw new Error(j.error || 'Orchestration failed')
       const processed = Array.isArray(j.processed) ? j.processed : []
-      const base = processed.map((p: any) => ({ deal_id: Number(p.deal_id) }))
+      const base = processed.map((p: any) => ({
+        deal_id: Number(p.deal_id),
+        job_title: p.job_title || undefined,
+        status: p.status || undefined,
+        reason: p.reason || null
+      }))
       setEnrichResults(base)
       await loadAttributesForResults(base)
       setEnrichMsg(`Ran Prompts 1–4 for ${base.length} job(s)`) 
@@ -301,6 +308,7 @@ export default function AdminReferralsPage() {
 
   async function loadAttributesForResults(items: any[]) {
     const updated = await Promise.all(items.map(async (r) => {
+      if (r.status === 'skipped') return r
       try {
         const res = await fetch(`/api/admin/referral-attributes?dealId=${r.deal_id}`)
         const jj = await res.json()
@@ -551,6 +559,12 @@ export default function AdminReferralsPage() {
               <div>
                 <div className="text-emerald-700 font-medium">{r.job_title || `#${r.deal_id}`}</div>
                 <div className="text-xs text-zinc-400">#{r.deal_id}</div>
+                {r.status === 'skipped' && (
+                  <div className="mt-1 inline-flex items-center gap-1 rounded bg-amber-100 px-2 py-0.5 text-[11px] text-amber-800">
+                    <span>Skipped:</span>
+                    <span>{r.reason || 'unknown'}</span>
+                  </div>
+                )}
               </div>
 
               <div className="mt-3 text-sm">
