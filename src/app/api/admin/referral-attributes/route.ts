@@ -36,7 +36,7 @@ export async function GET(req: Request) {
 
     const attrs = await supabase
       .from('job_fit_attributes')
-      .select('attribute_name, category, fit_color, final_rank')
+      .select('attribute_name, category, fit_color, final_rank, jd_rank, title_rank')
       .eq('deal_id', dealId)
       .order('final_rank', { ascending: true })
 
@@ -70,6 +70,8 @@ export async function GET(req: Request) {
         color: o?.color ?? a.fit_color,
         visible: o?.visible ?? true,
         final_rank: a.final_rank,
+        jd_rank: a.jd_rank ?? null,
+        title_rank: a.title_rank ?? null,
         has_override: !!o,
       }
     })

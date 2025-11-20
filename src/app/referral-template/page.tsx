@@ -4,12 +4,20 @@ import { Container } from '@/components/Container'
 import Link from 'next/link'
 import { headers } from 'next/headers'
 import { ReferralContextCapture } from '@/components/referrals/ReferralContext'
+import { ReferralCTASection } from '@/components/referrals/ReferralCTASection'
 import { Target, Briefcase, Users, TrendingUp } from 'lucide-react'
 
 export const metadata = {
   title: 'Referral Template',
   description: 'Base template for referral pages',
 }
+
+const LINKEDIN_URL = process.env.NEXT_PUBLIC_LINKEDIN_URL || 'https://www.linkedin.com/in/allenhwalker'
+const EMAIL_ADDRESS = process.env.NEXT_PUBLIC_REFERRAL_EMAIL || 'referrals@allenwalker.info'
+const CALENDLY_URL = process.env.NEXT_PUBLIC_CALENDLY_URL || 'https://calendly.com/allen-bayconnectors'
+const GITHUB_URL = process.env.NEXT_PUBLIC_GITHUB_URL || 'https://github.com/allenhwalker'
+const SUBSTACK_URL = process.env.NEXT_PUBLIC_SUBSTACK_URL || 'https://substack.com/@bayconnectors'
+const BLUESKY_URL = process.env.NEXT_PUBLIC_BLUESKY_URL || 'https://bsky.app/profile/bayconnectors.bsky.social'
 
 export default async function ReferralTemplatePage() {
   async function getBaseUrl() {
@@ -207,11 +215,173 @@ export default async function ReferralTemplatePage() {
           <div className="mt-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
             <div className="md:col-span-7 self-start">
               <div className="text-zinc-700 dark:text-zinc-300 whitespace-pre-wrap">
-                {intro?.message || 'This page gives a concise view of how my background aligns with roles at this company. Below you will find a brief fit summary for each role, along with the key industry, process, and technical attributes that map to my experience.'}
+                {intro?.message || 'This page gives a concise view of how my background aligns with roles at this company. Below you will find a brief fit summary for each role, along with the key industry, process, and technical attributes that map to my experience. Use the Email Referral Generator at the bottom to share a polished recommendation.'}
               </div>
             </div>
             <div className="flex md:col-span-5 justify-center shrink-0">
               <img src="/images/aw_headshot_360px.png" alt="Allen Walker" className="h-40 w-40 md:h-56 md:w-56 rounded-full ring-1 ring-zinc-900/10 object-cover mx-auto" />
+            </div>
+          </div>
+          <div className="mt-8 border-t border-zinc-200 pt-6 dark:border-white/10">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">Connect</h3>
+                <div className="mt-3 space-y-2.5">
+                  <a
+                    href={LINKEDIN_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-50 px-3.5 py-2.5 transition hover:bg-white hover:shadow-sm dark:bg-zinc-800/60 dark:hover:bg-zinc-800"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E6F0FF]">
+                      <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5 text-[#0A66C2]">
+                        <path
+                          d="M20.45 3H3.55A.55.55 0 0 0 3 3.55v16.9c0 .3.25.55.55.55h16.9c.3 0 .55-.25.55-.55V3.55A.55.55 0 0 0 20.45 3ZM8.1 18.5H5.6V9.75h2.5ZM6.85 8.6a1.45 1.45 0 1 1 0-2.9 1.45 1.45 0 0 1 0 2.9Zm11.65 9.9h-2.5v-4.3c0-1.05-.02-2.4-1.45-2.4-1.45 0-1.67 1.14-1.67 2.32v4.38h-2.5V9.75h2.4v1.19h.03c.33-.63 1.16-1.3 2.4-1.3 2.57 0 3.05 1.7 3.05 3.9Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                    </span>
+                    <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">LinkedIn</span>
+                    <svg
+                      className="ml-auto h-4 w-4 text-zinc-400"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                    >
+                      <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </a>
+                  <a
+                    href={`mailto:${EMAIL_ADDRESS}`}
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-50 px-3.5 py-2.5 transition hover:bg-white hover:shadow-sm dark:bg-zinc-800/60 dark:hover:bg-zinc-800"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-rose-100 text-rose-600">
+                      <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5">
+                        <path
+                          d="M4 7.5 10.6 12a2.8 2.8 0 0 0 2.8 0L20 7.5"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <rect
+                          x="3"
+                          y="5"
+                          width="18"
+                          height="14"
+                          rx="2"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                        />
+                      </svg>
+                    </span>
+                    <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Email</span>
+                    <svg
+                      className="ml-auto h-4 w-4 text-zinc-400"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                    >
+                      <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">Meet</h3>
+                <div className="mt-3">
+                  <a
+                    href={CALENDLY_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-3 rounded-2xl bg-zinc-50 px-3.5 py-2.5 transition hover:bg-white hover:shadow-sm dark:bg-zinc-800/60 dark:hover:bg-zinc-800"
+                  >
+                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                      <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5">
+                        <path
+                          d="M8 3v2M16 3v2M5 7h14M6 11h2m3 0h2m3 0h2M6 15h2m3 0h2m3 0h2M6 19h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Book a Meeting</span>
+                    </div>
+                    <svg
+                      className="ml-auto h-4 w-4 text-zinc-400"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                    >
+                      <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">Follow</h3>
+                <div className="mt-3 space-y-2.5">
+                  {[{ label: 'GitHub', href: GITHUB_URL, iconBg: 'bg-zinc-900/5', icon: (
+                    <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5 text-zinc-900">
+                      <path
+                        fill="currentColor"
+                        d="M12 .5a11.5 11.5 0 0 0-3.64 22.42c.57.11.78-.25.78-.55v-2.1c-3.18.7-3.85-1.37-3.85-1.37-.52-1.32-1.28-1.68-1.28-1.68-1.05-.72.08-.71.08-.71 1.17.08 1.78 1.2 1.78 1.2 1.03 1.77 2.71 1.26 3.37.96.1-.76.4-1.26.73-1.55-2.54-.29-5.22-1.27-5.22-5.63 0-1.24.44-2.25 1.16-3.05-.12-.29-.5-1.46.11-3.04 0 0 .95-.3 3.12 1.16a10.8 10.8 0 0 1 5.68 0c2.17-1.46 3.12-1.16 3.12-1.16.61 1.58.23 2.75.11 3.04.72.8 1.16 1.81 1.16 3.05 0 4.38-2.69 5.33-5.24 5.61.41.35.78 1.04.78 2.11v3.13c0 .3.2.67.79.55A11.5 11.5 0 0 0 12 .5Z"
+                      />
+                    </svg>
+                  ) }, {
+                    label: 'Substack',
+                    href: SUBSTACK_URL,
+                    iconBg: 'bg-orange-500/10',
+                    icon: (
+                      <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5 text-orange-500">
+                        <path fill="currentColor" d="M4 5h16v2H4z" />
+                        <path fill="currentColor" d="M4 9h16v2H4z" />
+                        <path fill="currentColor" d="M4 13h16v6l-8-3-8 3z" />
+                      </svg>
+                    ),
+                  }, {
+                    label: 'Bluesky',
+                    href: BLUESKY_URL,
+                    iconBg: 'bg-sky-100',
+                    icon: (
+                      <svg viewBox="0 0 24 24" aria-hidden className="h-5 w-5 text-sky-500">
+                        <path
+                          fill="currentColor"
+                          d="M5.1 4C3.4 4 2 5.4 2 7.1c0 2.5 1.7 4.6 3.6 6.2 1.6 1.4 3.6 2.6 6.4 3.7 2.8-1.1 4.9-2.3 6.4-3.7 1.9-1.6 3.6-3.7 3.6-6.2C22 5.4 20.6 4 18.9 4c-1.2 0-2.2.6-3 1.5-.7.8-1.2 1.8-1.8 2.9-.3.6-.7 1.3-1.1 1.9-.4-.6-.8-1.3-1.1-1.9-.6-1.1-1.1-2.1-1.8-2.9C7.3 4.6 6.3 4 5.1 4Z"
+                        />
+                      </svg>
+                    ),
+                  }].map((link) => (
+                    <a
+                      key={link.label}
+                      href={link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-3 rounded-2xl bg-zinc-50 px-3.5 py-2.5 transition hover:bg-white hover:shadow-sm dark:bg-zinc-800/60 dark:hover:bg-zinc-800"
+                    >
+                      <span className={`flex h-8 w-8 items-center justify-center rounded-xl ${link.iconBg}`}>
+                        {link.icon}
+                      </span>
+                      <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{link.label}</span>
+                      <svg
+                        className="ml-auto h-4 w-4 text-zinc-400"
+                        viewBox="0 0 20 20"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                      >
+                        <path d="M7 4l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </a>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -224,9 +394,9 @@ export default async function ReferralTemplatePage() {
           </div>
         </section>
 
-        {/* Jobs at Company */}
+        {/* Positions at Company */}
         <section>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Jobs at Company</h2>
+          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Positions at {companyName || 'Company'}</h2>
           <div className="mt-4 space-y-6">
             {deals.length === 0 && (
               <div className="text-sm text-zinc-500">No jobs found for this company in pipeline ID “{pipelineId}”.</div>
@@ -256,14 +426,16 @@ export default async function ReferralTemplatePage() {
                     ) : s?.jd_summary ? (
                       <div className="text-sm text-zinc-700 dark:text-zinc-300">{s.jd_summary}</div>
                     ) : (
-                      <div className="text-sm text-zinc-500">No job description available.</div>
+                      <div className="text-sm text-zinc-500">Text failed to load.</div>
                     )}
                   </div>
 
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div className="md:col-span-2">
                       <div className="text-sm font-medium text-zinc-800 dark:text-zinc-200 mb-2">Fit Summary</div>
-                      <div className="text-sm text-zinc-700 dark:text-zinc-300 min-h-24 whitespace-pre-wrap">{s?.narrative || 'Analyzing…'}</div>
+                      <div className="text-sm text-zinc-700 dark:text-zinc-300 min-h-24 whitespace-pre-wrap">
+                        {s?.fit_summary || 'Text failed to load.'}
+                      </div>
                     </div>
                     <div className="md:col-span-1">
                       <div className="h-full rounded-lg ring-1 ring-zinc-900/10 flex items-center justify-center p-4">
@@ -286,10 +458,7 @@ export default async function ReferralTemplatePage() {
         </section>
 
         {/* Call to Action */}
-        <section>
-          <h2 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Call to Action</h2>
-          <div className="mt-2 h-0" />
-        </section>
+        <ReferralCTASection deals={deals} companyName={companyName} />
       </div>
     </Container>
   )
