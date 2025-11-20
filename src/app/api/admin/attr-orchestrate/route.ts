@@ -332,12 +332,10 @@ async function persistJobFitResult(supabase: any, params: {
   const percent = (typeof params.fit_score === 'number' && isFinite(params.fit_score))
     ? Math.round(Math.max(0, Math.min(1, params.fit_score)) * 100)
     : 0
-  const payload = {
+  const basePayload = {
     deal_id: params.dealId,
     job_title: params.job_title || null,
     jd_text: params.job_description || null,
-    jd_summary: params.jd_summary || null,
-    fit_summary: params.fit_summary || null,
     narrative: params.profileNarrative || null,
     jd_hash,
     profile_hash,
@@ -347,8 +345,20 @@ async function persistJobFitResult(supabase: any, params: {
     process_fit_percent: percent,
     technical_fit_percent: percent,
   }
+  const payload = {
+    ...basePayload,
+    jd_summary: params.jd_summary || null,
+    fit_summary: params.fit_summary || null,
+  }
   const up = await supabase.from('job_fit_summary').upsert(payload, { onConflict: 'deal_id' })
-  if (up.error) throw new Error(up.error.message)
+  if (up.error) {
+    const msg = up.error.message || ''
+    const missingColumns = /column\s+"?(jd_summary|fit_summary)"?/i.test(msg)
+    if (!missingColumns) throw new Error(msg)
+    const legacyPayload = { ...basePayload }
+    const legacyUp = await supabase.from('job_fit_summary').upsert(legacyPayload, { onConflict: 'deal_id' })
+    if (legacyUp.error) throw new Error(legacyUp.error.message)
+  }
   await supabase.from('job_fit_attributes').delete().eq('deal_id', params.dealId)
   if (params.attributes?.length) {
     await (supabase.from('job_fit_attributes') as any).insert(params.attributes as any[])
@@ -739,19 +749,24 @@ async function processDeal(dealId: number) {
     const keywords = normalizeKeywords(obj.keywords)
     let fitScore = typeof obj.fit_score === 'number' && isFinite(obj.fit_score) ? Math.max(0, Math.min(1, obj.fit_score)) : null
     coloredAttrs = colorizeAttributes((mapped.attributes || []) as AttributeRow[])
-    await persistJobFitResult(supabase, {
-      dealId,
-      job_title,
-      job_description,
-      profileNarrative,
-      jd_summary: obj.jd_summary || null,
-      fit_summary: obj.fit_summary || null,
-      fit_score: fitScore,
-      attributes: coloredAttrs,
-    })
-    summaries = { jd_summary: obj.jd_summary || null, fit_summary: obj.fit_summary || null, fit_score: fitScore, keywords }
+    const summaryPayload = { jd_summary: obj.jd_summary || null, fit_summary: obj.fit_summary || null, fit_score: fitScore, keywords }
+    try {
+      await persistJobFitResult(supabase, {
+        dealId,
+        job_title,
+        job_description,
+        profileNarrative,
+        jd_summary: summaryPayload.jd_summary,
+        fit_summary: summaryPayload.fit_summary,
+        fit_score: fitScore,
+        attributes: coloredAttrs,
+      })
+    } catch (err) {
+      console.error('[attr-orchestrate] summary persistence failed', { dealId, error: err instanceof Error ? err.message : String(err) })
+    }
+    summaries = summaryPayload
   } catch (err) {
-    console.error('[attr-orchestrate] summary persistence failed', { dealId, error: err instanceof Error ? err.message : String(err) })
+    console.error('[attr-orchestrate] summary generation failed', { dealId, error: err instanceof Error ? err.message : String(err) })
   }
 
   return { deal_id: dealId, job_title, status: 'ok', prompt1: rankRows.length, prompt2: p2, prompt3: p3, prompt4: p4, attributes: coloredAttrs, summaries }
