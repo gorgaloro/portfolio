@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="500" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="500" rx="20" fill="#F1F5F9"/>
+  <g transform="translate(60,60)">
+    <rect x="0" y="0" width="680" height="360" rx="14" fill="#FFFFFF" stroke="#CBD5E1"/>
+    <g stroke="#E2E8F0" stroke-width="1">
+      <path d="M40 300 H620"/>
+      <path d="M40 240 H620"/>
+      <path d="M40 180 H620"/>
+      <path d="M40 120 H620"/>
+      <path d="M40 60 H620"/>
+    </g>
+    <polyline points="40,290 160,260 240,240 340,200 420,220 520,150 620,120" fill="none" stroke="#6366F1" stroke-width="3"/>
+    <g fill="#6366F1">
+      <circle cx="40" cy="290" r="4"/>
+      <circle cx="160" cy="260" r="4"/>
+      <circle cx="240" cy="240" r="4"/>
+      <circle cx="340" cy="200" r="4"/>
+      <circle cx="420" cy="220" r="4"/>
+      <circle cx="520" cy="150" r="4"/>
+      <circle cx="620" cy="120" r="4"/>
+    </g>
+  </g>
+  <text x="400" y="36" text-anchor="middle" fill="#1F2937" font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif" font-size="22" font-weight="600">Account Growth</text>
+</svg>

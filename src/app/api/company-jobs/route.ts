@@ -1,0 +1,148 @@
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+function getClient() {
+  const url = process.env.SUPABASE_URL || process.env.URL || ''
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  if (!url || !key) throw new Error('Missing Supabase server env')
+  return createClient(url, key)
+}
+
+export async function GET(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url)
+    const companyId = Number(searchParams.get('companyId') || '0')
+    const pipeline = searchParams.get('pipeline') || undefined
+    const pipelineId = searchParams.get('pipelineId') || undefined
+    if (!companyId) return NextResponse.json({ deals: [] })
+
+    const supabase = getClient()
+    const links = await supabase.from('hubspot_deal_companies').select('deal_id').eq('company_id', companyId)
+    if (links.error) return NextResponse.json({ error: links.error.message }, { status: 500 })
+    const ids = (links.data || []).map((r: any) => r.deal_id)
+    if (!ids.length) {
+      // Attempt to return company name even if there are no deals
+      let companyName: string | null = null
+      try {
+        const comp = await supabase.from('hubspot_companies').select('name').eq('company_id', companyId).limit(1)
+        companyName = comp.data?.[0]?.name ?? null
+      } catch {}
+      return NextResponse.json({ company: companyName ? { id: companyId, name: companyName } : undefined, deals: [] })
+    }
+
+    // Try selecting dealstage and properties; if it fails (column missing), fall back without it
+    let query = supabase
+      .from('hubspot_deals')
+      .select('deal_id, dealname, job_title, job_url, pipeline, dealstage, properties, application_date, hs_lastmodifieddate')
+      .in('deal_id', ids)
+
+    if (pipelineId) {
+      query = query.eq('pipeline', pipelineId)
+    } else if (pipeline) {
+      query = query.eq('pipeline', pipeline)
+    }
+    let dealsResp = await query.order('hs_lastmodifieddate', { ascending: false })
+    let deals: any[] = (dealsResp.data as any[]) || []
+    if (dealsResp.error) {
+      // Fall back to query without optional fields
+      let q2 = supabase
+        .from('hubspot_deals')
+        .select('deal_id, dealname, job_title, job_url, pipeline, dealstage, properties, application_date, hs_lastmodifieddate')
+        .in('deal_id', ids)
+      if (pipelineId) q2 = q2.eq('pipeline', pipelineId)
+      else if (pipeline) q2 = q2.eq('pipeline', pipeline)
+      const fb = await q2.order('hs_lastmodifieddate', { ascending: false })
+      if (fb.error) return NextResponse.json({ error: fb.error.message }, { status: 500 })
+      deals = (fb.data as any[]) || []
+    }
+    if (!deals.length) return NextResponse.json({ deals: [] })
+
+    const dealIds = deals.map((d: any) => d.deal_id)
+
+    let summaries: any = await supabase
+      .from('job_fit_summary')
+      .select('deal_id, total_fit_percent, industry_fit_percent, process_fit_percent, technical_fit_percent, narrative, fit_summary, jd_hash, profile_hash, jd_summary, jd_text')
+      .in('deal_id', dealIds)
+    if (summaries.error) {
+      // Fallback for environments without jd_summary column yet
+      summaries = await supabase
+        .from('job_fit_summary')
+        .select('deal_id, total_fit_percent, industry_fit_percent, process_fit_percent, technical_fit_percent, narrative, fit_summary, jd_summary, jd_hash, profile_hash, jd_text')
+        .in('deal_id', dealIds)
+    }
+    const attrs = await supabase
+      .from('job_fit_attributes')
+      .select('deal_id, attribute_name, category, fit_color, final_rank')
+      .in('deal_id', dealIds)
+
+    const overrides = await supabase
+      .from('job_fit_overrides')
+      .select('deal_id, attribute_name, label, pillar, color, visible, jd_hash, profile_hash')
+      .in('deal_id', dealIds)
+
+    const sMap = new Map<number, any>()
+    for (const s of summaries.data || []) sMap.set(s.deal_id, s)
+    const aMap = new Map<number, any[]>()
+    for (const a of attrs.data || []) {
+      const arr = aMap.get(a.deal_id) || []
+      arr.push(a)
+      aMap.set(a.deal_id, arr)
+    }
+    const oMap = new Map<number, any[]>()
+    for (const o of overrides.data || []) {
+      const arr = oMap.get(o.deal_id) || []
+      arr.push(o)
+      oMap.set(o.deal_id, arr)
+    }
+
+    const result = deals.map((d: any) => {
+      const s = sMap.get(d.deal_id) || null
+      const ovs = (oMap.get(d.deal_id) || []).filter((o: any) => !s || (o.jd_hash === s.jd_hash && o.profile_hash === s.profile_hash))
+      const ovIndex = new Map<string, any>()
+      for (const o of ovs) ovIndex.set(o.attribute_name, o)
+      const base = (aMap.get(d.deal_id) || []).sort((x, y) => x.final_rank - y.final_rank)
+      const patched = base
+        .map((a: any) => {
+          const o = ovIndex.get(a.attribute_name)
+          const label = (o?.label ?? a.attribute_name)
+          const category = (o?.pillar ?? a.category)
+          const fit_color = (o?.color ?? a.fit_color)
+          const visible = (o?.visible ?? true)
+          return { ...a, attribute_name: label, category, fit_color, visible }
+        })
+        .filter((a: any) => a.visible !== false)
+
+      const props = (d as any).properties || {}
+      const labelFromProps = props.hs_pipeline_stage_label ?? props.dealstage_label ?? props.dealstage_name ?? props.stage_label ?? null
+      const stage_label = labelFromProps || (
+        typeof (d as any).dealstage === 'string' && (d as any).dealstage.length > 0 && !/^\d+$/.test((d as any).dealstage)
+          ? (d as any).dealstage
+          : ((d as any).application_date ? 'Application Submitted' : null)
+      )
+
+      return {
+        deal_id: d.deal_id,
+        job_title: d.job_title || d.dealname,
+        job_url: d.job_url || null,
+        pipeline: d.pipeline,
+        dealstage: (d as any).dealstage ?? null,
+        stage_label,
+        summary: s,
+        attributes: patched,
+      }
+    })
+
+    // Include company name if available (best-effort)
+    let companyName: string | null = null
+    try {
+      const comp = await supabase.from('hubspot_companies').select('name').eq('company_id', companyId).limit(1)
+      companyName = comp.data?.[0]?.name ?? null
+    } catch {}
+
+    return NextResponse.json({ company: companyName ? { id: companyId, name: companyName } : undefined, deals: result })
+  } catch (e: any) {
+    return NextResponse.json({ error: String(e?.message ?? e) }, { status: 500 })
+  }
+}

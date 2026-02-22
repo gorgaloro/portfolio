@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <h1>LinkedIn Capture</h1>
+    <p>Capture profile → HubSpot contact</p>
+  </div>
+
+  <div class="body">
+    <!-- Step 1: Extract -->
+    <div id="step-extract">
+      <button class="btn btn-primary" id="extractBtn">Extract Profile</button>
+    </div>
+
+    <!-- Step 2: Preview + Edit -->
+    <div id="step-preview" class="hidden">
+      <!-- Profile header -->
+      <div class="profile-header" id="profileHeader"></div>
+
+      <!-- Company match -->
+      <div id="companyMatch" class="company-match hidden"></div>
+      <div id="companyAlternatives" class="company-alternatives hidden"></div>
+
+      <!-- Extracted data preview -->
+      <div id="extractedPreview" class="extracted-preview hidden"></div>
+
+      <!-- Duplicate warning -->
+      <div id="dupWarn" class="dup-warn hidden"></div>
+
+      <!-- Deal association -->
+      <div id="dealSection" class="field hidden">
+        <label>Link to Deal</label>
+        <select id="dealSelect"><option value="">— None —</option></select>
+      </div>
+
+      <!-- Tag sections (collapsible) -->
+      <div class="tag-sections">
+        <div class="tag-section" data-group="network_roles">
+          <div class="tag-section-header">
+            <span class="tag-section-title">Network Roles</span>
+            <span class="tag-section-toggle">▼</span>
+          </div>
+          <div class="tag-section-body" id="tags-network_roles"></div>
+        </div>
+        <div class="tag-section" data-group="life_projects">
+          <div class="tag-section-header">
+            <span class="tag-section-title">Life Projects</span>
+            <span class="tag-section-toggle">▼</span>
+          </div>
+          <div class="tag-section-body" id="tags-life_projects"></div>
+        </div>
+        <div class="tag-section" data-group="metro_areas">
+          <div class="tag-section-header">
+            <span class="tag-section-title">Metro Area</span>
+            <span class="tag-section-toggle">▼</span>
+          </div>
+          <div class="tag-section-body" id="tags-metro_areas"></div>
+        </div>
+        <div class="tag-section" data-group="focus_areas">
+          <div class="tag-section-header">
+            <span class="tag-section-title">Focus Areas</span>
+            <span class="tag-section-toggle">▼</span>
+          </div>
+          <div class="tag-section-body" id="tags-focus_areas"></div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="field">
+        <label>Why am I adding this person?</label>
+        <textarea id="captureNotes" rows="2" placeholder="Context about this contact…"></textarea>
+      </div>
+      <div class="field">
+        <label>Next Steps</label>
+        <textarea id="nextSteps" rows="2" placeholder="Follow-up actions…"></textarea>
+      </div>
+
+      <!-- Task toggle -->
+      <div class="task-section">
+        <label class="task-toggle-label">
+          <input type="checkbox" id="taskEnabled">
+          Create follow-up task
+        </label>
+        <div id="taskFields" class="hidden">
+          <div class="field">
+            <label>Template</label>
+            <select id="taskTemplate"></select>
+          </div>
+          <div class="field">
+            <label>Due Date</label>
+            <input type="date" id="taskDueDate">
+          </div>
+          <div class="field">
+            <label>Priority</label>
+            <select id="taskPriority">
+              <option value="LOW">Low</option>
+              <option value="MEDIUM" selected>Medium</option>
+              <option value="HIGH">High</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Description (custom)</label>
+            <input type="text" id="taskDescription" placeholder="Custom task description">
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="btn btn-cancel" id="cancelBtn">Cancel</button>
+        <button class="btn btn-confirm" id="saveBtn">Save Contact</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Success -->
+    <div id="step-success" class="hidden">
+      <div class="success-banner">
+        <div class="success-icon">✓</div>
+        <div class="success-title" id="successMsg">Contact saved!</div>
+        <div class="success-detail" id="successDetail"></div>
+      </div>
+      <a id="hubspotLink" class="hubspot-link hidden" target="_blank">View in HubSpot →</a>
+      <a id="supabaseInfo" class="success-sub hidden" target="_blank"></a>
+      <button id="captureAnotherBtn" class="btn btn-secondary" style="margin-top: 12px; width: 100%;">Capture Another Profile</button>
+    </div>
+
+    <!-- Messages -->
+    <div id="message" class="msg hidden"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

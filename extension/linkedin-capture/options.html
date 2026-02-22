@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { width: 360px; padding: 20px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; color: #1a1a1a; }
+    h2 { font-size: 15px; margin-bottom: 16px; }
+    label { display: block; font-size: 12px; font-weight: 600; color: #71717a; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+    input { width: 100%; padding: 8px 10px; border: 1px solid #d4d4d8; border-radius: 6px; font-size: 13px; margin-bottom: 12px; }
+    .btn { display: block; width: 100%; padding: 10px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: #18181b; color: #fff; }
+    .btn:hover { background: #27272a; }
+    .msg { margin-top: 10px; font-size: 12px; color: #16a34a; }
+  </style>
+</head>
+<body>
+  <h2>LinkedIn Capture Settings</h2>
+  <label for="apiEndpoint">API Endpoint</label>
+  <input type="text" id="apiEndpoint" placeholder="https://your-site.vercel.app">
+  <label for="authToken">Admin Auth Token</label>
+  <input type="password" id="authToken" placeholder="Enter admin token">
+  <button class="btn" id="saveBtn">Save Settings</button>
+  <div class="msg" id="msg"></div>
+  <script src="options.js"></script>
+</body>
+</html>

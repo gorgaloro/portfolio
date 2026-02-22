@@ -1,0 +1,99 @@
+'use client'
+
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+
+const STORAGE_KEY = 'referral_ctx'
+const DEFAULT_TTL_MS = 1000 * 60 * 60 * 48
+
+type Ctx = {
+  slug: string
+  company?: string
+  url?: string
+  exp: number
+  showBackLink?: boolean
+}
+
+export function ReferralContextCapture({ slug, company, ttlMs = DEFAULT_TTL_MS, showBackLink, onlyIfEmpty }: { slug: string; company?: string; ttlMs?: number; showBackLink?: boolean; onlyIfEmpty?: boolean }) {
+  useEffect(() => {
+    const url = typeof window !== 'undefined' ? window.location.href : undefined
+    const exp = Date.now() + ttlMs
+    const ctx: Ctx = { slug, company, url, exp, showBackLink }
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (onlyIfEmpty && raw) {
+        const existing: Ctx = JSON.parse(raw)
+        if (existing?.slug && (!existing.exp || existing.exp > Date.now())) return
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(ctx))
+      document.cookie = `referral_ctx=1; Path=/; Max-Age=${Math.floor(ttlMs / 1000)}; SameSite=Lax`
+    } catch {}
+  }, [slug, company, ttlMs, showBackLink, onlyIfEmpty])
+  return null
+}
+
+export function ReferralReturnBar() {
+  const [ctx, setCtx] = useState<Ctx | null>(null)
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (!raw) return
+      const parsed: Ctx = JSON.parse(raw)
+      if (!parsed?.slug || (parsed.exp && parsed.exp < Date.now())) {
+        localStorage.removeItem(STORAGE_KEY)
+        return
+      }
+      setCtx(parsed)
+    } catch {}
+  }, [])
+
+  // Retry shortly after mount in case another component sets the context just after first paint
+  useEffect(() => {
+    if (ctx) return
+    let tries = 0
+    const id = setInterval(() => {
+      tries += 1
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY)
+        if (raw) {
+          const parsed: Ctx = JSON.parse(raw)
+          if (parsed?.slug && (!parsed.exp || parsed.exp > Date.now())) {
+            setCtx(parsed)
+            clearInterval(id)
+          }
+        }
+      } catch {}
+      if (tries >= 5) clearInterval(id)
+    }, 300)
+    return () => clearInterval(id)
+  }, [ctx])
+
+  if (!ctx) return null
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 text-sm text-zinc-700 dark:text-zinc-200">
+      <span className="break-words max-w-full">A personalized look at my fit for opportunities at {ctx.company || ctx.slug}</span>
+      {ctx.showBackLink !== false && (
+        <>
+          <span className="text-zinc-400">·</span>
+          <Link
+            href={ctx.slug === 'referral-template' ? '/referral-template' : `/referrals/${encodeURIComponent(ctx.slug)}`}
+            className="font-semibold hover:underline"
+          >
+            Back to referral
+          </Link>
+        </>
+      )}
+      <button
+        aria-label="Dismiss referral context"
+        onClick={() => {
+          try { localStorage.removeItem(STORAGE_KEY) } catch {}
+          setCtx(null)
+        }}
+        className="ml-1 text-red-600 hover:text-red-700 font-semibold"
+      >
+        ×
+      </button>
+    </div>
+  )
+}
